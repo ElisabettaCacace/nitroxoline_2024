@@ -1,0 +1,198 @@
+Isolate	MIC	Isolate_type	Mutation_Type	Protein_Change	Species
+SC1768	8	clinical isolate	Missense_Mutation	D109A	E. coli
+1639	NA	NA	Missense_Mutation	I101I	E. coli
+4247	4	clinical isolate	Missense_Mutation	D168G	E. coli
+7171	4	clinical isolate	Missense_Mutation	D168G	E. coli
+A8448-2	NA	clinical isolate	Missense_Mutation	Q138L	E. coli
+AI071_flye	4	clinical isolate	Missense_Mutation	D168G	E. coli
+SC1654_flye	4	clinical isolate	Missense_Mutation	D168G	E. coli
+CGN-A015388	NA	clinical isolate	Missense_Mutation	H114Y	E. coli
+E004362-2	NA	clinical isolate	Missense_Mutation	D168G	E. coli
+E1043-2	NA	clinical isolate	Missense_Mutation	M1?	E. coli
+SC1901	4	clinical isolate	Missense_Mutation	D168G	E. coli
+SC841_flye	4	clinical isolate	Missense_Mutation	D168G	E. coli
+E7644-1	NA	clinical isolate	Missense_Mutation	H114Y	E. coli
+518	8	clinical isolate	Missense_Mutation	D168G	E. coli
+MS-10	16	clinical isolate	Missense_Mutation	D168G	E. coli
+SC1112_flye	2	clinical isolate	Missense_Mutation	D168G	E. coli
+MS-09	32	clinical isolate	Missense_Mutation	D168G	E. coli
+T2761	NA	NA	Missense_Mutation	D168G	E. coli
+T2762	NA	NA	Missense_Mutation	D168G	E. coli
+B612592	NA	clinical isolate	Missense_Mutation	D93fs	E. coli
+JS275	NA	clinical isolate	Missense_Mutation	H114Y	E. coli
+603	8	clinical isolate	Missense_Mutation	H114Y	E. coli
+SC1077	8	clinical isolate	Missense_Mutation	H114Y	E. coli
+SC1206	8	clinical isolate	Missense_Mutation	H114Y	E. coli
+SC1764	16	clinical isolate	Missense_Mutation	H114Y	E. coli
+SC1764_unicycler	16	clinical isolate	Missense_Mutation	H114Y	E. coli
+SC1769	16	clinical isolate	Missense_Mutation	H114Y	E. coli
+NRZ-17310	NA	clinical isolate	Missense_Mutation	H114Y	E. coli
+NRZ-18277	NA	clinical isolate	Missense_Mutation	D168G	E. coli
+SC1764	16	clinical isolate	Missense_Mutation	P74S	E. coli
+SC1764_unicycler	16	clinical isolate	Missense_Mutation	P74S	E. coli
+SC1769	16	clinical isolate	Missense_Mutation	P74S	E. coli
+SC183	4	clinical isolate	Missense_Mutation	Q138L	E. coli
+E28-1	8	clinical isolate	Missense_Mutation	Q138L	E. coli
+E28-1-Novastar	8	clinical isolate	Missense_Mutation	Q138L	E. coli
+3424	8	clinical isolate	Missense_Mutation	R111G	E. coli
+5335	8	clinical isolate	Missense_Mutation	R85H	E. coli
+MS-10	16	clinical isolate	Missense_Mutation	R90H	E. coli
+MS-09	32	clinical isolate	Missense_Mutation	R90H	E. coli
+SC04	4	clinical isolate	Missense_Mutation	V170A	E. coli
+H246470	2	clinical isolate	Missense_Mutation	V170A	E. coli
+SC05	2	clinical isolate	Missense_Mutation	V170A	E. coli
+SC1931	2	clinical isolate	Missense_Mutation	V170A	E. coli
+1587	128	clinical isolate	Frame_Shift_Ins	G60_R61insRNGSIHLG	K. pneumoniae
+2390	64	clinical isolate	Missense_Mutation	I74S	K. pneumoniae
+2394	64	clinical isolate	Missense_Mutation	I74S	K. pneumoniae
+5502	32	clinical isolate	Frame_Shift_Ins	A158fs	K. pneumoniae
+700603	16		Missense_Mutation	V137L	K. pneumoniae
+E3456-1	NA	clinical isolate	Missense_Mutation	D95E	K. pneumoniae
+E3456-1	NA	clinical isolate	Missense_Mutation	H159L	K. pneumoniae
+E3456-1	NA	clinical isolate	Missense_Mutation	V113I	K. pneumoniae
+E4295-1	NA	clinical isolate	Missense_Mutation	D95E	K. pneumoniae
+E4295-1	NA	clinical isolate	Missense_Mutation	H159L	K. pneumoniae
+E4295-1	NA	clinical isolate	Missense_Mutation	V113I	K. pneumoniae
+KLPN241	NA	clinical isolate	Missense_Mutation	D95E	K. pneumoniae
+KLPN241	NA	clinical isolate	Missense_Mutation	V113I	K. pneumoniae
+MS270	32	clinical isolate	Missense_Mutation	A133V	K. pneumoniae
+MS289	32	clinical isolate	Nonsense_Mutation	Y109*	K. pneumoniae
+MS298	64	clinical isolate	Frame_Shift_Ins	G60_R61insRNGSIHLG	K. pneumoniae
+MS-30	32	clinical isolate	Missense_Mutation	W90C	K. pneumoniae
+MS444	32	clinical isolate	Missense_Mutation	D141A	K. pneumoniae
+MS444	32	clinical isolate	Missense_Mutation	D95E	K. pneumoniae
+MS444	32	clinical isolate	Missense_Mutation	H159L	K. pneumoniae
+MS444	32	clinical isolate	Missense_Mutation	R43H	K. pneumoniae
+MS444	32	clinical isolate	Missense_Mutation	V113I	K. pneumoniae
+MS445	32	clinical isolate	Missense_Mutation	D141A	K. pneumoniae
+MS445	32	clinical isolate	Missense_Mutation	D95E	K. pneumoniae
+MS445	32	clinical isolate	Missense_Mutation	H159L	K. pneumoniae
+MS445	32	clinical isolate	Missense_Mutation	R43H	K. pneumoniae
+MS445	32	clinical isolate	Missense_Mutation	V113I	K. pneumoniae
+MS469	32	clinical isolate	Frame_Shift_Ins	G60_R61insRNGSIHLG	K. pneumoniae
+MS515	64	generated	Missense_Mutation	D95E	K. pneumoniae
+MS515	64	generated	Missense_Mutation	V137L	K. pneumoniae
+MS528	64	clinical isolate	Missense_Mutation	L134Q	K. pneumoniae
+MS559-2	64	generated	Frame_Shift_Ins	G60_R61insRNGSIHLG	K. pneumoniae
+SC1760	32	clinical isolate	Frame_Shift_Ins	G60_R61insRNGSIHLG	K. pneumoniae
+SC1942	32	clinical isolate	Nonsense_Mutation	E118Stop	K. pneumoniae
+SC831	32	clinical isolate	Missense_Mutation	D95E	K. pneumoniae
+SC831	32	clinical isolate	Missense_Mutation	N62H	K. pneumoniae
+SC831	32	clinical isolate	Missense_Mutation	V137L	K. pneumoniae
+T2387	64		Frame_Shift_Ins	G60_R61insRNGSIHLG	K. pneumoniae
+T2394	64		Missense_Mutation	I74S	K. pneumoniae
+3377	NA	NA	Missense_Mutation	A77S	A. baumannii
+SC227	NA	NA	Missense_Mutation	A77S	A. baumannii
+SC250	NA	NA	Missense_Mutation	A77S	A. baumannii
+19606-R-MS	NA	NA	Nonsense_Mutation	C312*	A. baumannii
+5138	NA	NA	Missense_Mutation	F202Y	A. baumannii
+1306	NA	NA	Missense_Mutation	L44L	A. baumannii
+1306	NA	NA	Missense_Mutation	A74A	A. baumannii
+5141	NA	NA	Missense_Mutation	F202Y	A. baumannii
+5144	NA	NA	Missense_Mutation	F202Y	A. baumannii
+5138	NA	NA	Missense_Mutation	H188Q	A. baumannii
+5141	NA	NA	Missense_Mutation	H188Q	A. baumannii
+5144	NA	NA	Missense_Mutation	H188Q	A. baumannii
+7061	NA	NA	Frameshift_Ins	H43fs	A. baumannii
+1702	NA	NA	Missense_Mutation	I125F	A. baumannii
+1780	NA	NA	Missense_Mutation	A74A	A. baumannii
+1780	NA	NA	Missense_Mutation	102	A. baumannii
+1780	NA	NA	Missense_Mutation	106	A. baumannii
+1780	NA	NA	Missense_Mutation	V124V	A. baumannii
+1780	NA	NA	Missense_Mutation	D133D	A. baumannii
+1306	NA	NA	Missense_Mutation	I37L	A. baumannii
+1542	NA	NA	Missense_Mutation	I37L	A. baumannii
+1602	NA	NA	Missense_Mutation	I37L	A. baumannii
+2048	NA	NA	Missense_Mutation	I37L	A. baumannii
+2127	NA	NA	Missense_Mutation	I37L	A. baumannii
+5655	NA	NA	Missense_Mutation	I37L	A. baumannii
+AA57	NA	NA	Missense_Mutation	I37L	A. baumannii
+3377	NA	NA	Missense_Mutation	K42R	A. baumannii
+SC227	NA	NA	Missense_Mutation	K42R	A. baumannii
+SC250	NA	NA	Missense_Mutation	K42R	A. baumannii
+5703	NA	NA	Missense_Mutation	L247H	A. baumannii
+5703-V2	NA	NA	Missense_Mutation	L247H	A. baumannii
+5708	NA	NA	Missense_Mutation	L247H	A. baumannii
+ABC141-St.6_flye	NA	NA	Missense_Mutation	M7L	A. baumannii
+ABC141	NA	NA	Missense_Mutation	M7L	A. baumannii
+BMBF232	NA	NA	Missense_Mutation	M7L	A. baumannii
+BMBF262	NA	NA	Missense_Mutation	M7L	A. baumannii
+BMBF437	NA	NA	Missense_Mutation	M7L	A. baumannii
+BMBF440	NA	NA	Missense_Mutation	M7L	A. baumannii
+BMBF93	NA	NA	Missense_Mutation	M7L	A. baumannii
+3730	NA	NA	Missense_Mutation	N11I	A. baumannii
+ABC141-St.6_flye	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+ABC141	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+ACBA-52584990_flye	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+BMBF232	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+BMBF262	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+BMBF437	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+BMBF440	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+BMBF93	NA	NA	Frameshift_Ins	N187fs	A. baumannii
+52419354-111	NA	NA	Missense_Mutation	N334I	A. baumannii
+5750	NA	NA	Missense_Mutation	N50I	A. baumannii
+5750	NA	NA	Missense_Mutation	P131L	A. baumannii
+1776	NA	NA	Missense_Mutation	P269L	A. baumannii
+1784	NA	NA	Missense_Mutation	P269L	A. baumannii
+1786	NA	NA	Missense_Mutation	P269L	A. baumannii
+1803	NA	NA	Missense_Mutation	P269L	A. baumannii
+1813	NA	NA	Missense_Mutation	P269L	A. baumannii
+1776	NA	NA	Frameshift_Ins	P90fs	A. baumannii
+1784	NA	NA	Frameshift_Ins	P90fs	A. baumannii
+1786	NA	NA	Frameshift_Ins	P90fs	A. baumannii
+1803	NA	NA	Frameshift_Ins	P90fs	A. baumannii
+1813	NA	NA	Frameshift_Ins	P90fs	A. baumannii
+2134	NA	NA	Nonsense_Mutation	Q276*	A. baumannii
+3048	NA	NA	Nonsense_Mutation	Q276*	A. baumannii
+4430	NA	NA	Nonsense_Mutation	Q276*	A. baumannii
+5138	NA	NA	Missense_Mutation	R200S	A. baumannii
+SC227	NA	NA	Missense_Mutation	50	A. baumannii
+SC227	NA	NA	Missense_Mutation	53	A. baumannii
+5141	NA	NA	Missense_Mutation	R200S	A. baumannii
+5144	NA	NA	Missense_Mutation	R200S	A. baumannii
+3377	NA	NA	Missense_Mutation	R8K	A. baumannii
+SC227	NA	NA	Missense_Mutation	R8K	A. baumannii
+SC250	NA	NA	Missense_Mutation	R8K	A. baumannii
+SC803	NA	NA	Missense_Mutation	R8K	A. baumannii
+4401	NA	NA	Missense_Mutation	W204R	A. baumannii
+377	nd	NA	Missense_Mutation	D178E	A. baumannii
+1656	nd	NA	Missense_Mutation	R63C	A. baumannii
+1703	nd	NA	Missense_Mutation	R63C	A. baumannii
+2955	nd	NA	Missense_Mutation	AD183EN	A. baumannii
+2955	nd	NA	Missense_Mutation	E121V	A. baumannii
+3377	nd	NA	Missense_Mutation	AD183EN	A. baumannii
+3377	nd	NA	Missense_Mutation	F50Y	A. baumannii
+3377	nd	NA	Missense_Mutation	K80D	A. baumannii
+3377	nd	NA	Missense_Mutation	MS73IL	A. baumannii
+3377	nd	NA	Missense_Mutation	V126L	A. baumannii
+3730	nd	NA	Missense_Mutation	S154L	A. baumannii
+4120	nd	NA	Missense_Mutation	AD183EN	A. baumannii
+19606_flye	nd	NA	Frameshift_Ins	F106fs	A. baumannii
+ACBA-52576393_flye	nd	NA	Frameshift_Ins	F106fs	A. baumannii
+ACBA-52577970_flye	nd	NA	Frameshift_Ins	F106fs	A. baumannii
+ACBA-52584990_flye	nd	NA	Frameshift_Ins	F106fs	A. baumannii
+DSM30006	nd	NA	Missense_Mutation	A55V	A. baumannii
+DSM30006	nd	NA	Missense_Mutation	F50Y	A. baumannii
+JS490	nd	NA	Missense_Mutation	AD183EN	A. baumannii
+JS490	nd	NA	Missense_Mutation	F50Y	A. baumannii
+JS490	nd	NA	Missense_Mutation	K80D	A. baumannii
+JS490	nd	NA	Missense_Mutation	MS73IL	A. baumannii
+SC227	nd	NA	Missense_Mutation	AD183EN	A. baumannii
+SC227	nd	NA	Missense_Mutation	F50Y	A. baumannii
+SC227	nd	NA	Missense_Mutation	K80D	A. baumannii
+SC227	nd	NA	Missense_Mutation	MS73IL	A. baumannii
+SC227	nd	NA	Missense_Mutation	V126L	A. baumannii
+SC250	nd	NA	Missense_Mutation	AD183EN	A. baumannii
+SC250	nd	NA	Missense_Mutation	F50Y	A. baumannii
+SC250	nd	NA	Missense_Mutation	K80D	A. baumannii
+SC250	nd	NA	Missense_Mutation	MS73IL	A. baumannii
+SC250	nd	NA	Missense_Mutation	V126L	A. baumannii
+SC803	nd	NA	Missense_Mutation	AD183EN	A. baumannii
+SC803	nd	NA	Missense_Mutation	F50Y	A. baumannii
+SC803	nd	NA	Missense_Mutation	K80D	A. baumannii
+SC803	nd	NA	Missense_Mutation	MS73IL	A. baumannii
+SC803	nd	NA	Missense_Mutation	V126L	A. baumannii
+V111660G	nd	NA	Missense_Mutation	A169S	A. baumannii
+V111660G_flye	nd	NA	Missense_Mutation	A169S	A. baumannii
+V111660K	nd	NA	Missense_Mutation	A169S	A. baumannii
+V111660K_flye	nd	NA	Missense_Mutation	A169S	A. baumannii

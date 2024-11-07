@@ -1,0 +1,11 @@
+This_study EUCAST cosine distance
+Acinetobacter spp. Acinetobacter spp. 0.872215779451786
+Citrobacter spp. Citrobacter spp. 0.565218279205956
+Enterobacter spp. Enterobacter spp. 0.761717231952206
+Escherichia coli Escherichia coli 0.731851700569587
+Klebsiella oxytoca Klebsiella oxytoca 0.855831526358065
+Klebsiella pneumoniae Klebsiella pneumoniae 0.597083534532974
+Morganella morganii Morganella morganii 0.997019458594645
+Proteus spp. Proteus spp. 0.968746971047097
+Pseudomonas aeruginosa Pseudomonas aeruginosa 0.77197072434242
+Pseudomonas spp. Pseudomonas spp. 0.248889920341668

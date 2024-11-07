@@ -1,0 +1,56 @@
+Hugo_Symbol	Sample_ID	Protein_Change	Mutation_Type	Isolate_type	disk diffusion [mm]	MIC	MIC agar dilution [mg/L]	Remark	Alternative ID
+EmrR	SC1768	D109A	Missense_Mutation	clinical isolate	12	8	8	NA	NA
+EmrR	MS569	D109V	Missense_Mutation	generated	10	16	16	NA	NA
+EmrR	1639	I101I	Missense_Mutation	NA	NA	NA	NA	NA	NA
+EmrR	MS577	D109V	Missense_Mutation	generated	9	16	32	NA	NA
+EmrR	MS579	D109V	Missense_Mutation	generated	9	32	32	NA	NA
+EmrR	4247	D168G	Missense_Mutation	clinical isolate	20	4	4	MT/JP (Denisa Paper)	NA
+EmrR	7171	D168G	Missense_Mutation	clinical isolate	22	4	2	NA	JS470
+EmrR	A8448-2	Q138L	Missense_Mutation	clinical isolate	NA	NA	NA	NICHT VORHANDEN	NA
+EmrR	AI071_flye	D168G	Missense_Mutation	clinical isolate	20	4	2	"unsere Stammsammlung; Blatt ""AI"" (Akne Inversa-Studie)"	NA
+EmrR	SC1654_flye	D168G	Missense_Mutation	clinical isolate	14	4	2	NA	NA
+EmrR	CGN-A015388	H114Y	Missense_Mutation	clinical isolate	NA	NA	NA	NICHT VORHANDEN	NA
+EmrR	E004362-2	D168G	Missense_Mutation	clinical isolate	NA	NA	NA	NICHT VORHANDEN	NA
+EmrR	E1043-2	M1?	Missense_Mutation	clinical isolate	NA	NA	NA	NICHT VORHANDEN	NA
+EmrR	SC1901	D168G	Missense_Mutation	clinical isolate	16	4	2	NA	NA
+EmrR	SC841_flye	D168G	Missense_Mutation	clinical isolate	17	4	2	NA	NA
+EmrR	E7644-1	H114Y	Missense_Mutation	clinical isolate	NA	NA	NA	NICHT VORHANDEN	NA
+EmrR	518	D168G	Missense_Mutation	clinical isolate	11	8	8	NA	SC919 (hat aber andere MHKs: MD 8; AD 2 und Adiff 16-21 mm)
+EmrR	MS-10	D168G	Missense_Mutation	clinical isolate	12	16	16	NA	NA
+EmrR	SC1112_flye	D168G	Missense_Mutation	clinical isolate	18	2	2	NA	NA
+EmrR	MS-09	D168G	Missense_Mutation	clinical isolate	11	32	32	NA	NA
+EmrR	T2761	D168G	Missense_Mutation	NA	NA	NA	NA	whs. resistentzselektiert	NA
+EmrR	T2762	D168G	Missense_Mutation	NA	NA	NA	NA	whs. resistentzselektiert	NA
+EmrR	B612592	D93fs	Missense_Mutation	clinical isolate	NA	NA	NA	NA	SC422; 3426
+EmrR	MS529	E94fs	Frame_Shift_Ins	generated	12	32	16	NA	NA
+EmrR	JS275	H114Y	Missense_Mutation	clinical isolate	NA	NA	NA	NA	JS285 (tube fehlt!)
+EmrR	603	H114Y	Missense_Mutation	clinical isolate	16	8	2	NA	SC919
+EmrR	SC1077	H114Y	Missense_Mutation	clinical isolate	17	8	16	NA	NA
+EmrR	SC1206	H114Y	Missense_Mutation	clinical isolate	21	8	8	NA	NA
+EmrR	SC1764	H114Y	Missense_Mutation	clinical isolate	10	16	16	NA	NA
+EmrR	SC1764_unicycler	H114Y	Missense_Mutation	clinical isolate	10	16	16	NA	NA
+EmrR	SC1769	H114Y	Missense_Mutation	clinical isolate	11	16	16	NA	NA
+EmrR	MS572	L95P	Missense_Mutation	generated	NA	16	16	NA	NA
+EmrR	MS593	L95P	Missense_Mutation	generated	9	16	32	NA	NA
+EmrR	MS594	L95P	Missense_Mutation	generated	9	32	32	NA	NA
+EmrR	NRZ-17310	H114Y	Missense_Mutation	clinical isolate	NA	NA	NA	NICHT VORHANDEN	NA
+EmrR	NRZ-18277	D168G	Missense_Mutation	clinical isolate	NA	NA	NA	NICHT VORHANDEN	NA
+EmrR	SC1764	P74S	Missense_Mutation	clinical isolate	10	16	16	NA	NA
+EmrR	SC1764_unicycler	P74S	Missense_Mutation	clinical isolate	10	16	16	NA	NA
+EmrR	SC1769	P74S	Missense_Mutation	clinical isolate	11	16	16	NA	NA
+EmrR	SC183	Q138L	Missense_Mutation	clinical isolate	15	4	2	NA	NA
+EmrR	E28-1	Q138L	Missense_Mutation	clinical isolate	19	8	8	NA	"SC994, SC995"
+EmrR	E28-1-Novastar	Q138L	Missense_Mutation	clinical isolate	19	8	8	NA	"SC994, SC995"
+EmrR	MS346	Q164fs	Missense_Mutation	generated	8	64	64	ESCO oder KLPN? ESCO!	NA
+EmrR	3424	R111G	Missense_Mutation	clinical isolate	14	8	8	NA	SC421
+EmrR	MS548	R111S	Missense_Mutation	generated	9	32	32	NA	NA
+EmrR	5335	R85H	Missense_Mutation	clinical isolate	16	8	16	NA	NA
+EmrR	MS-10	R90H	Missense_Mutation	clinical isolate	12	16	16	NA	NA
+EmrR	MS-09	R90H	Missense_Mutation	clinical isolate	11	32	32	NA	NA
+EmrR	MS516	T30P	Missense_Mutation	generated	13	8	8	KLPN?? ESCO!	NA
+EmrR	MS368	T30P	Missense_Mutation	generated	11	16	16	NA	NA
+EmrR	MS511	T30P	Missense_Mutation	generated	10	16	16	NA	NA
+EmrR	SC04	V170A	Missense_Mutation	clinical isolate	15	4	4	NA	NA
+EmrR	H246470	V170A	Missense_Mutation	clinical isolate	21	2	2	NA	JS474
+EmrR	SC05	V170A	Missense_Mutation	clinical isolate	16	2	4	NA	NA
+EmrR	SC1931	V170A	Missense_Mutation	clinical isolate	16	2	4	NA	NA
