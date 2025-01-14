@@ -37,7 +37,6 @@ supptablesdir = paste0(home_dir, "SuppTables/")
 
 
 # required functions
-##plotting function 2DTPP
 
 ```{r}
 plot2dTppFcHeatmap <- function(df, name, 
@@ -83,252 +82,7 @@ capitalize_first_and_last <- function(string) {
   return(paste(first_letter, middle_letters, last_letter, sep = ""))
 }
 
-capitalize_last = function(string){
-  last_letter <- toupper(substring(string, nchar(string), nchar(string)))
-  middle_letters <- tolower(substring(string, 2, nchar(string)))
-  return(paste(middle_letters, last_letter, sep = ""))
-}
-
 ```
-
-## fix proteomics ortholog annotation for Fig. 5b and ED 5a
-
-```{r}
-
-resmut <- fread("~/Documents/EMBL/Nx/proteomics_strains_Marco/results_with_pangenome.tsv") %>%
-  dplyr::mutate(species = case_when(Strain_treatment %in% c("PRZS", "MS02S","MS25S","MS274R","MS299R","MS311R","MS366R","MS386R", "MS493R", "MS530R","MS55S") ~ "K. pneumoniae",
-                                    Strain_treatment %in% c("19606S", "2778S","dadeL","MS69R", "MS72R") ~ "A. baumannii",
-                                    TRUE ~ "E. coli"),
-                og1 = case_when(og %in% c("ompc~~~ompk36", "wp_000865543.1") | protein_ID == "P06996" | description %in% c("Outer membrane protein C","outer membrane protein C") ~ "OmpC",
-                                description %in% c("Outer membrane protein Slp") ~ "Slp",
-                                gene_name == "oprC" ~"OprC",
-                                og %in% c("ompW") | description %in% c("outer membrane protein ompW", "Outer membrane protein OmpW") ~ "OmpW",
-                                description %in% c("2-hydroxy-3-oxopropionate reductase") ~ "GarR",
-                                description %in% c("2,3-dehydroadipyl-CoA hydratase") ~ "PaaF",
-                                description %in% c("4-aminobutyrate aminotransferase GabT") ~ "GabT",
-                                description %in% c("aldehyde-alcohol dehydrogenase", "Aldehyde-alcohol dehydrogenase") ~ "AdhE",
-                                description %in% c("Citrate lyase alpha chain", "citrate lyase alpha subunit") ~ "CitF",
-                                og %in% c("bepf~~~oqxA", "adeF") | gene_name == "bpeE" ~ "BpeE/AdeF/OqxA/BepF",
-                                description %in% c("Fumarate hydratase class II", "fumarate hydratase class II") ~ "FumC",
-                                description %in% c("fumarate reductase iron-sulfur subunit", "Fumarate reductase iron-sulfur subunit") ~ "FrdB",
-                                description %in% c("fumarate reductase subunit C", "Fumarate reductase subunit C") ~ "FrdC",
-                                description %in% c("galactarate dehydratase", "Galactarate dehydratase (L-threo-forming)") ~ "GarD",
-                                description %in% c("hydrogenase accessory protein HypB", "Hydrogenase maturation factor HypB") ~ "HypB",
-                                description %in% c("Indole-3-pyruvate decarboxylase") ~ "IpdC",
-                                og %in% c("basJ","entC") | description %in% c("Isochorismate synthase EntC") ~ "EntC",
-                                description %in% c("Low-affinity putrescine importer PlaP") ~ "PlaP",
-                                og %in% c("wp_000973666.1", "lamB") | gene_name == "lamB" | protein_ID == "P02943" | description %in% c("maltoporin", "Maltoporin") ~ "LamB",
-                                description %in% c("Maltose/maltodextrin import ATP-binding protein MalK", "maltose/maltodextrin import ATP-binding protein MalK") ~ "MalK",
-                                description %in% c("Mannose-1-phosphate guanylyltransferase 1", "mannose-1-phosphate guanylyltransferase/mannose-6-phosphate isomerase") ~ "ManC1",
-                                og %in% c("soxS_1", "wp_000091198.1") | protein_ID == "P37340" | description %in% c("multiple antibiotic resistance protein marA", "Multiple antibiotic resistance protein MarA") ~ "MarA",
-                                description %in% c("nucleoside-specific channel-forming protein tsx", "Nucleoside-specific channel-forming protein Tsx") ~ "Tsx",
-                                description %in% c("osmotically-inducible protein Y", "Osmotically-inducible protein Y") ~ "OsmY",
-                                og %in% c("ompC~~~ompK36", "wp_000865543.1") | protein_ID == "P06996" | description %in% c("outer membrane protein C", "Outer membrane protein C") ~ "OmpC",
-                                description %in% c("oxygen-insensitive NAD(P)H nitroreductase","Putative oxygen-insensitive NAD(P)H nitroreductase", "Oxygen-insensitive NAD(P)H nitroreductase") ~ "NfsB",
-                                description %in% c("oxygen-insensitive NADPH nitroreductase", "Oxygen-insensitive NADPH nitroreductase") ~ "NfsA",
-                                description %in% c("protein yqjC", "Protein YqjC") ~ "YqjC",
-                                description %in% c("PTS system mannose-specific EIIAB component") ~ "ManX",
-                                description %in% c("putative dimethyl sulfoxide reductase chain ynfE", "Putative dimethyl sulfoxide reductase chain YnfE") ~ "YnfE",
-                                description %in% c("Succinate-semialdehyde dehydrogenase [NAD(P)+]",
-                                                   "Succinate-semialdehyde dehydrogenase [NADP(+)] 1","Succinate-semialdehyde dehydrogenase [NADP(+)] GabD") ~ "GabD1",
-                                og %in% c("emrR", "mprA") | description %in% c("Transcriptional repressor MprA") ~ "EmrR",
-                                description %in% c("Urocanate hydratase") ~ "HutU",
-                                description %in% c("threonine ammonia-lyase") ~ "IlvA",
-                                og == "yhcN~~~bhsA_4" ~ "BhsA",
-                                og == "fdhF~~~fdhF_1" ~ "FdhA",
-                                og == "Hydrogenase-4 component A" ~ "HyfA",
-                                og == "yciE" ~ "YciE",
-                                 og %in% c("oqxB3", "adeG") | gene_name == "bpeF"~ "BpeF/AdeG/OqxB",
-                         og %in% c("bepA_1", "bepA_2") ~ "BepA",
-                         og %in% c("emrA_1", "emrA_3") ~ "EmrA",
-                         og %in% c("adeB","acrB_1") ~ "AcrB",
-                         og %in% c("acrR","acrR~~~acrR_1","wp_000101737.1") ~ "AcrR",
-                         og %in% c("adeI","acrA") ~ "AcrA",
-                        description == "transcriptional regulatory protein ompR" ~ "OmpR",
-                         description %in% c("outer membrane protein tolC", "Outer membrane protein TolC") ~ "TolC",
-                         og %in% c("group_2715","pgaA~~~hmsH") ~ "PgaA",
-                         og %in% c("scrY_1") ~ "ScrY",
-                         og %in% c("wp_000737271.1") ~ "OmpD",
-                         og %in% c("ompC~~~ompN_1") | protein_ID == "P77747" | description == "outer membrane protein N" ~ "OmpN",
-                        og == "wp_000977927.1" | protein_ID == "P02931" | description == "outer membrane protein F" ~ "OmpF",
-                        description == "Outer membrane protein Omp38" ~ "Omp38",
-                         og %in% c("ompX") | description %in% c("outer membrane protein ompX", "Outer membrane protein OmpX") ~ "OmpX",
-                         description == "Outer membrane protein YedS" ~ "YedS",
-                        description == "Outer membrane protein A" | protein_ID == "P0A910" ~ "OmpA",
-                         og %in% c("oprB_1") | protein_ID == "D0CDE3" ~ "OprB",
-                         og %in% c("oprD", "group_3145") ~ "OprD",
-                        og %in% c("mdtQ~~~cusC_1", "adeK") | protein_ID == "D0CDQ0"  ~ "OprM",
-                        og %in% c("mdtK", "wp_001174963.1") | protein_ID == "P37340" ~ "MdtK",
-                        TRUE ~ og)) %>%
-  #mutate(og1 = capitalize_first_and_last(og1)) %>%
-  capitalize_first_last()
-
-toannot =resmut %>%
-   dplyr::filter(hit==1) %>%
-  dplyr::group_by(og1) %>%
-  dplyr::mutate(count=n()) %>%
-  dplyr::mutate(conservation = case_when(count > 1 ~ "conserved",
-                                         TRUE ~ "strain-specific")) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(og1, count, conservation) %>%
-  unique()
-
-
-# highlight cross-species conservation
-toplot2=resmut %>%
-   dplyr::filter(hit==1) %>%
-  dplyr::group_by(og1) %>%
-  # dplyr::mutate(species_count = paste0(species)) #%>% 
-  # dplyr::group_by(og) %>% 
-  dplyr::summarise(conserv_annot = paste(unique(species), collapse = ";")) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(conservation = case_when(conserv_annot %in% c("A. baumannii;E. coli;K. pneumoniae", "A. baumannii;K. pneumoniae", "E. coli;K. pneumoniae") ~ "conserved across species",
-                                         TRUE ~ "species-specific"))
-
-
-toannot = toannot %>%
-  dplyr::mutate(cross_species_conservation = case_when(og1 %in% unique(filter(toplot2,conservation == "conserved across species"))$og1 ~ "conserved across species",
-                                                                      TRUE ~ conservation)) %>%
-    dplyr::mutate(cross_species_conservation = case_when(cross_species_conservation == "conserved" ~ "conserved within species",
-                                                       TRUE ~ cross_species_conservation))
-
-toplot = full_join(toannot, resmut)
-
-toplot = toplot %>%
-  dplyr::mutate(complete_name = interaction(species, Strain_treatment, sep=" "))
-
-toplot$cross_species_conservation[is.na(toplot$cross_species_conservation)] <- "no orthology group annotated"
-
-
-write.table(toplot, paste0(outputdir,"remsut_conservation_annotated_forplotting.txt"), sep="\t", quote = F,row.names = F)
-
-write.table(filter(toplot, hit==1), paste0(outputdir,"hits_proteomics_og_annotated.txt"), sep="\t", quote = F,row.names = F)
-
-```
-
-
-
-## mean MIC to write in text
-
-### per species
-```{r}
-dilut = readxl::read_xlsx(paste0(inputdir,"microdilutions_2023_17.02.2024_.xlsx"), sheet = 1) %>%
-  filter(Species != "NA") %>%
-  mutate(Method=rep("Microdilution"), nrow(.)) %>%
-  pivot_longer(cols = c(3:13),names_to = "MIC",values_to = "n_strains") %>%
-  group_by(MIC) %>%
-  summarise(totstrain=sum(n_strains)) %>%
-  ungroup() %>%
-  mutate(MIC = as.numeric(MIC),
-         micstrain = MIC*totstrain,
-         meanmic = sum(micstrain/sum(totstrain)))
-  
-disk = readxl::read_xlsx(paste0(inputdir,"disk_diffusion_2023_17.02.2024_.xlsx"), sheet = 1)%>%
-  filter(Species != "NA") %>%
-  mutate(Method=rep("Disk diffusion"), nrow(.)) %>%
-  pivot_longer(cols = c(3:27),names_to = "MIC",values_to = "n_strains") %>%
-  group_by(MIC) %>%
-  summarise(totstrain=sum(n_strains)) %>%
-  ungroup() %>%
-  mutate(MIC = as.numeric(MIC),
-         micstrain = MIC*totstrain,
-         meanmic = sum(micstrain/sum(totstrain)))
-
-
-agar = readxl::read_xlsx(paste0(inputdir,"agar_dilutions_2023_17.02.2024_.xlsx"), sheet = 1)%>%
-  filter(strain != "NA") %>%
-  mutate(Method=rep("Agar dilution"), nrow(.)) %>%
-  pivot_longer(cols = c(3:9),names_to = "MIC",values_to = "n_strains") %>%
-  group_by(MIC) %>%
-  summarise(totstrain=sum(n_strains)) %>%
-  ungroup() %>%
-  mutate(MIC = as.numeric(MIC),
-         micstrain = MIC*totstrain,
-         meanmic = sum(micstrain/sum(totstrain)))
-
-sum(agar$totstrain)
-
-mean(agar$meanmic)
-
-
-### check which families have lower MIC than e. coli
-
-
-library(forcats)
-agar = readxl::read_xlsx(paste0(inputdir,"microdilutions_2023_17.02.2024_.xlsx"), sheet = 1) %>%
-  pivot_longer(cols=3:13,names_to = "MIC", values_to = "no_strains") %>%
-  mutate(MIC=as.numeric(MIC))
-          
-toplot <-  agar %>%
-  rowwise() %>%
-  mutate(repeated_values = list(rep(MIC, no_strains))) %>%
-  unnest(repeated_values)
-
-
-# median in broth
-toplot %>% # group_by(Species) %>%
-  summarise(meanMIC=mean(MIC),
-            medianMIC=median(MIC))
-
-# median per species in broth
-toplot= toplot %>% group_by(Species) %>%
-  summarise(meanMIC=mean(MIC),
-            medianMIC=median(MIC))
-
-
-#median in agar
-agar = readxl::read_xlsx(paste0(inputdir,"agar_dilutions_2023_17.02.2024_.xlsx"), sheet = 1) %>%
-  filter(strain != "NA") %>%
-  mutate(Method=rep("Agar dilution"), nrow(.)) %>%
-  pivot_longer(cols = c(3:9),names_to = "MIC",values_to = "no_strains") %>%
-  mutate(MIC=as.numeric(MIC))
-          
-toplot <-  agar %>%
-  rowwise() %>%
-  mutate(repeated_values = list(rep(MIC, no_strains))) %>%
-  unnest(repeated_values)
-
-toplot %>% # group_by(Species) %>%
-  summarise(meanMIC=mean(MIC),
-            medianMIC=median(MIC))
-
-```
-
-### per family
-
-```{r}
-agar = readxl::read_xlsx(paste0(inputdir,"microdilutions_2023_17.02.2024_.xlsx"), sheet = 1) %>%
-  pivot_longer(cols=3:13,names_to = "MIC", values_to = "no_strains") %>%
-  mutate(MIC=as.numeric(MIC))
-
-toplot <-  agar %>%
-  rowwise() %>%
-  mutate(repeated_values = list(rep(MIC, no_strains))) %>%
-  unnest(repeated_values)
-
-# get average value MIC to cite in text
-View(toplot %>% group_by(Species) %>%
-  dplyr::summarise(meanMIC=mean(MIC),
-            medianmic=median(MIC)))
-
-toplot %>%summarise(meanMIC=mean(MIC))
-
-# per family
-toplot=toplot %>%
-  mutate(family = case_when(Species %in% c("Neisseria gonorrhoeae") ~ "Neisseriales",
-            Species %in% c("Achromobacter xylosoxidans","Burkholderia cenocepacia") ~ "Burkholderiales",
-            Species %in% c("Stenotrophomonas maltophilia") ~ "Xantomonadales",
-            Species %in% c("Pseudomonas aeruginosa","Pseudomonas putida") ~ "Pseudomonadaceae",
-            Species %in% c("Acinetobacter baumannii","Acinetobacter johnsonii", "Acinetobacter junii", "Acinetobacter lwoffii","Acinetobacter pittii","Acinetobacter ursingii","Moraxella catarrhalis","Moraxella osloensis") ~ "Moraxellaceae",
-            TRUE ~ "Enterobacterales"))
-
-View(toplot %>% group_by(family) %>%
-  summarise(meanMIC=mean(MIC),
-            medianmic= median(MIC)))
-
-
-```
-
 
 #MAIN FIGURES
 
@@ -369,9 +123,7 @@ ComplexUpset::upset(toplot,c("Agar dilution", "Disk diffusion", "Microdilution",
                      c("Microdilution", "Disk diffusion","Agar dilution"),
                     "Disk diffusion"),
   base_annotations=list('Intersection size'=intersection_size(
-    #counts=FALSE,
       text = list(size=5.5),
-      
       text_colors = c(on_background = "black", on_bar = "white"))),
   set_sizes=(upset_set_size(
     geom = geom_bar(width = 0.5),
@@ -619,7 +371,7 @@ dev.off()
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_2a_EDFig.3a.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2a_EDFig.3a.xlsx"))
 
   hzt_alone = toplot %>% filter(nitroxoline_concentration == 0.00) %>%
     dplyr::select(c("horizontal_drug","horizontal_concentration", "norm_fitness")) %>%
@@ -637,7 +389,7 @@ toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_2a_EDFig.3a.xlsx"))
   out = mutate(out, exp_fit = fit_vert * fit_hzt,
                bliss = fit_comb - exp_fit)
 
-# remove dead space for Bliss cumulative score
+# remove non-growing space, useless for Bliss calculation
 out = out %>% filter(!(horizontal_drug == "Colistin" & horizontal_concentration > 0.2))
 
 #assign interaction sign: synergy if 1st quartile < -0.1, antag if 3rd > 0.1
@@ -825,12 +577,10 @@ p1 <-   ggplot(filter(test, row==2), aes(x = as.factor(`Colistin concentration (
   scale_shape_manual(values=c(21,22,23), guide =
                          guide_legend(label.theme = element_markdown(), keyheight = 2)) +
   scale_linetype_manual(values=c("solid","longdash")) +
-  #facet_wrap(~ species,labeller = label_parsed) +
   labs(x="", y = "", colour = "") +
     ylim(min(test$meanOD),1.8) +
   theme_bw() +
   theme(axis.text.x = element_text(angle=60, hjust = 1),
-        #axis.ticks.x = element_blank(),
         axis.text=element_text(size=23),
         strip.text=element_text(size=22),
         legend.direction = "vertical",
@@ -853,7 +603,6 @@ p2 <- ggplot(filter(test, row==3), aes(x = as.factor(`Colistin concentration (µ
     ylim(min(test$meanOD),1.8) +
   theme_bw() +
   theme(axis.text.x = element_text(angle=60, hjust = 1),
-        #axis.ticks.x = element_blank(),
         axis.text=element_text(size=23),
         strip.text=element_text(size=22),
         legend.direction = "vertical",
@@ -893,12 +642,10 @@ p4 <- ggplot(filter(test, row==6), aes(x = as.factor(`Colistin concentration (µ
   scale_shape_manual(values=c(21,22,23), guide =
                          guide_legend(label.theme = element_markdown(), keyheight = 2)) +
   scale_linetype_manual(values=c("solid","longdash")) +
- # facet_wrap(~ species,labeller = label_parsed) +
   labs(x="", y = "", colour = "") +
     ylim(min(test$meanOD),1.8) +
   theme_bw() +
   theme(axis.text.x = element_text(angle=60, hjust = 1),
-        #axis.ticks.x = element_blank(),
         axis.text=element_text(size=23),
         strip.text=element_text(size=22),
         legend.direction = "vertical",
@@ -916,12 +663,10 @@ p5 <- ggplot(filter(test, row==7), aes(x = as.factor(`Colistin concentration (µ
   scale_shape_manual(values=c(21,22,23), guide =
                          guide_legend(label.theme = element_markdown(), keyheight = 2)) +
   scale_linetype_manual(values=c("solid","longdash")) +
- # facet_wrap(~ species,labeller = label_parsed) +
   labs(x="", y = "", colour = "") +
     ylim(min(test$meanOD),1.8) +
   theme_bw() +
   theme(axis.text.x = element_text(angle=60, hjust = 1),
-        #axis.ticks.x = element_blank(),
         axis.text=element_text(size=23),
         strip.text=element_text(size=23),
         legend.direction = "vertical",
@@ -940,12 +685,10 @@ p6 <- ggplot(filter(test, row==8), aes(x = as.factor(`Colistin concentration (µ
   scale_shape_manual(values=c(23), guide =
                          guide_legend(label.theme = element_markdown(), keyheight = 2)) +
   scale_linetype_manual(values=c("solid","longdash")) +
- # facet_wrap(~ species,labeller = label_parsed) +
   labs(x="", y = "", colour = "") +
     ylim(min(test$meanOD),1.8) +
   theme_bw() +
   theme(axis.text.x = element_text(angle=60, hjust = 1),
-        #axis.ticks.x = element_blank(),
         axis.text=element_text(size=23),
         strip.text=element_text(size=22),
         legend.direction = "vertical",
@@ -997,7 +740,6 @@ ggplot(toplot, aes(x = time_after_infection_h, y = mean, color = condition, grou
   theme(legend.position = "right",
         axis.text = element_text(size=20),
         axis.title = element_text(size=20),
-        #plot.margin = unit(c(0,0.5,0.5,0.6), 'cm'),
         legend.text=element_text(size=18))
 dev.off()
 
@@ -1168,7 +910,7 @@ write_xlsx(towrite,paste0(supptablesdir,"Supplementary_Table_3.xlsx"))
 
 
 
-## Fig. 3b - chemical genetics - SUPP TABLE 4
+## Fig. 3b - chemgen - SUPP TABLE 4
 
 ```{r}
 
@@ -1218,7 +960,6 @@ geom_abline(intercept = -log10(0.05), slope = 0, linetype = "dashed") +
   ggrepel::geom_text_repel(aes(label = gene, color=annot), force = 0.5,max.overlaps = 20,min.segment.length = 0.2, size = 4, segment.size = 0.2,data = hits %>% filter(gene %in% names & padj <= 0.05),fontface = "bold.italic") +
    scale_color_manual(values=jColors) +
   scale_fill_manual(values=jColors) +
-  #scale_fill_brewer(palette= "Set1")+
   ylab(expression('-log'[10]~'(adjusted p-val)')) +
   xlab(expression('log'[2]~'(FC mutant fitness)')) +
   theme_bw() +
@@ -1294,7 +1035,6 @@ a <- plot2dTppFcHeatmap(
 b <- plot2dTppFcHeatmap(
   df = toplot, name = "CueO",
   drug_name = "Nitroxoline")
-
 
 
 pdf(paste0(plotdir, "Fig.4a_thermal_profiles_copper.pdf"), width = 5.8, height = 2)
@@ -2146,7 +1886,7 @@ dev.off()
 ### ED3a - all checkerboards
 
 ```{r}
-allCBs = readxl::read_xlsx(paste0(sourcedatadir,"source_2a_EDFig.3a.xlsx")) %>%
+allCBs = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2a_EDFig.3a.xlsx")) %>%
   group_by(horizontal_concentration, nitroxoline_concentration, horizontal_drug) %>%
   mutate(median_norm_fitness = median(norm_fitness))
 
@@ -2373,58 +2113,6 @@ dev.off()
 
 
 ```{r}
-
-up = fread("~/Documents/EMBL/Nx/Nx_paper/REVISION/nitroxoline_2024/GO_enrichment/outputdir/GOenrich_Keio_Up.txt", sep = "\t")
-down = fread("~/Documents/EMBL/Nx/Nx_paper/REVISION/nitroxoline_2024/GO_enrichment/outputdir/GOenrich_Keio_Down.txt", sep = "\t")
-
-metal = c("4Fe-4S", "2Fe-2S", "siderophore", "iron","metal","zinc","copper","molybd","calci","manganese","ferr")
-respir = c("respir","electron","quinone","succin","tricarbo","fumara","dehydro","NarG","cytochrome","proton")
-OM = c("membran","acyltra","lipopolys")
-
-toplot = gdata::combine(up,down) %>%
-  mutate(annot = case_when(grepl(paste(metal,collapse="|"),GO.term) ~ "metal homeostasis",
-                           grepl(paste(respir,collapse="|"),GO.term) ~ "respiration",
-                           grepl(paste(OM,collapse="|"),GO.term) ~ "OM",
-                           TRUE ~"other"),
-         colour = case_when(GO.tree == "CC" ~ "dodgerblue3",
-                                          GO.tree == "MF" ~ "tomato",
-                                          TRUE ~ "darkgreen"),
-         full_name = case_when(GO.tree == "CC" ~ "Cellular Component",
-                                          GO.tree == "MF" ~ "Molecular Function",
-                                          TRUE ~ "Biological Process"),
-         fold.enrichment = as.numeric(fold_enrich),
-         colour2 = case_when(annot == "metal homeostasis" ~ "tomato",
-                             annot == "respiration"~ "dodgerblue3",
-                             annot == "OM" ~ "darkgreen",
-                                           TRUE ~ "black"),
-         source=gsub(source,pattern="up",replacement="increased\nfitness"),
-         source=gsub(source,pattern="down",replacement="decreased\nfitness")) 
-
-
-toplot = toplot %>%
-         filter(p_adj <= 0.05) %>%
-  mutate(GO.term = with(.,reorder(GO.term,fold.enrichment)))
-toplot = toplot[order(toplot$GO.term), ]
-
-
-# write source data
-towrite = toplot %>%
-  select(-c(hit_genes,freq_back_minus_fore,freq_fore_non_GOid,freq_back_non_GOid,num_genes_back,colour,colour2,full_name)) %>%
-  rename(effect=source,
-         annotation=annot) %>%
-  mutate(effect=gsub(effect,pattern="\n",replacement=" "))
-
-write_xlsx(towrite, paste0(sourcedatadir,"source_EDFig.4c.xlsx"))
-
-
-
-toplotup = toplot %>%
-  mutate(upordown = rep("increased\nfitness", nrow(.)))
-
-toplot = bind_rows(toplotup,toplotdown)
-
-
-
 toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.4c.xlsx")) %>%
  mutate(colour = case_when(GO.tree == "CC" ~ "dodgerblue3",
                                           GO.tree == "MF" ~ "tomato",
@@ -2455,7 +2143,7 @@ p <- ggplot(test,aes(y = GO.term, x = fold.enrichment)) +
 
 
 test = toplot %>%
-              filter(source == "increased fitness")
+              filter(effect == "increased fitness")
 
 p1 <-ggplot(test,aes(y = GO.term, x = fold.enrichment)) +
   geom_segment(aes(xend=0, yend=GO.term), color= "darkgrey") +
@@ -2554,7 +2242,7 @@ dev.off()
 ### ED Fig. 5a - volcano R strains
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig5a.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.5a.xlsx"))
 
 colours = data.frame("cross_species_conservation" = c("conserved across species", "conserved within species","strain-specific", "no orthology group annotated"),
                      "values" = c("black", "#67a9cf","#ef8a62", "darkgrey"))
@@ -2599,7 +2287,6 @@ dev.off()
 
 Source data is same as Fig. 5b (that is a small subset)
 ```{r}
-
 
 strains = c("A. baumannii 2_R1","A. baumannii 4_R1",
             "E. coli 2_R1","E. coli 2_R3","E. coli 2_R4",
@@ -3086,57 +2773,6 @@ dev.off()
 
 ## Fig. 4 - full growth curves Kpn resensitization
 ```{r}
-bunch = fread("~/Documents/EMBL/Nx/220602_colistin_Nx_resmutants/plate_reannotated.txt") %>%
-  dplyr::mutate(strain = case_when(strain == "EC_J53" ~ "E. coli J53",
-                                       strain == "EC_J53Tc2442" ~ "E. coli J53 pKP2442_mcr-1",
-                                       strain == "EC_J53pTOPO" ~ "E. coli J53 pTOPO",
-                                       strain == "EC_J53pTOPOmcr1" ~ "E. coli J53 pTOPO_mcr-1",
-                                       strain == "KP_2442" ~  "K. pneumoniae pKP2442_mcr-1",
-                                       strain == "KP_CTR3" ~ "K. pneumoniae CT-R3 pmrB (P95L)",
-                                       strain == "KP_CTS" ~ "K. pneumoniae CT-S",
-                                      strain == "KP_LS107" ~ "K. pneumoniae LS107",
-                                      strain == "KP_LS53" ~ "K. pneumoniae LS53 mgrB (IS1R)",
-                                      strain == "KP_PRZ" ~ "K. pneumoniae PRZ",
-                                      strain == "KP_PRZ2442" ~ "K. pneumoniae PRZ pKP2442_mcr-1",
-                                   TRUE ~ strain)) %>%
-    filter(strain != "nocells")
-
-
-
-bla = fread("~/Documents/EMBL/Nx/220707_colistin_Nx_resmutants_KPPRZ_topo/plate_reannotated.txt")
-
-pmrAB = fread("~/Documents/EMBL/Nx/221110_pmrAB_fromMichael/plate_reannotated.txt")%>%
-  dplyr::mutate(nitroxoline=case_when(Condition == "+ Nx 0.75 µg/ml" ~ "Nitroxoline_0.75",
-                                      TRUE ~ "no_Nitroxoline"))%>%
-  rename(strain=Strain) %>%
-  dplyr::mutate(strain = case_when(strain == "BW25113" ~ "E. coli BW25113",
-                                   strain == "MG1655" ~ "E. coli MG1655",
-                                   strain == "pmrA" ~ "E. coli MG1655 pmrA (G53E)",
-                                   strain == "pmrB" ~ "E. coli MG1655 pmrB (V88E)",
-                                   TRUE ~ strain)) 
-
-mcr1 = fread("~/Documents/EMBL/Nx/220527_MIC_mrc1_colistin_nx/plate_reannotated.txt") %>%
-    filter(Condition != "+ Nx 0.45 µg/ml") %>%
-  rename(strain=Strain) %>%
-  dplyr::mutate(nitroxoline=case_when(Condition == "+ Nx 0.85 µg/ml" ~ "Nitroxoline_0.75",
-                                      TRUE ~ "no_Nitroxoline")) %>%
-  dplyr::mutate(strain = case_when(strain == "BW" ~ "E. coli BW25113",
-                                   strain == "mcr1" ~ "E. coli BW25113 pGDP1_mcr1"))%>%
-  filter(strain != "E. coli BW25113")
-  
-
-
-toplot = bind_rows(bunch, bla, pmrAB,mcr1,.id = "source")
-#toplot = bind_rows(bunch, bla)
-
-#remove one dataset for prz - just creates confusion
-toplot = toplot %>%
-  filter(!(strain == "italic('K. pneumoniae')~PRZ" & source ==1))
-
-
-write_xlsx(toplot, paste0(sourcedatadir,"source_Fig.S4.xlsx"))
-
-
 toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.S4.xlsx"))
 
 
@@ -3151,7 +2787,6 @@ toplot = toplot %>%
   mutate(row= case_when(strain %in% c("E. coli BW25113","E. coli BW25113 pGDP1_mcr1") ~ 1,
                         strain %in% c("E. coli MG1655","E. coli MG1655 pmrA (G53E)","E. coli MG1655 pmrB (V88E)") ~ 2,
                         strain %in% c("E. coli J53","E. coli J53 pTOPO", "E. coli J53 pTOPO_mcr-1", "E. coli J53 pKP2442_mcr-1") ~ 3,
-                        #strain %in% c("E. coli J53 pKP2442_mcr-1") ~ 4,
                         strain %in% c("K. pneumoniae PRZ" , "K. pneumoniae PRZ pTOPO_mcr-1","K. pneumoniae PRZ pKP2442_mcr-1") ~ 5,
                         strain %in% c("K. pneumoniae CT-S", "K. pneumoniae CT-R3 pmrB (P95L)") ~ 6,
                         strain %in% c("K. pneumoniae LS107", "K. pneumoniae LS53 mgrB (IS1R)") ~ 7,
@@ -3217,7 +2852,7 @@ dev.off()
 
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"Fig.S5_growthCurves_LptD.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.S5.xlsx"))
 
 pdf(paste0(plotdir,"FigS5_fullgrowthcurves_lptD.pdf"),width = 10, height=2)
 ggplot(toplot%>%
@@ -3370,10 +3005,9 @@ p5 = ggplot(toplot,aes(y = GO.term, x = fold_enrich)) +
   scale_y_discrete(labels = function(x) str_wrap(x, width = 45)) +
   labs(size = "Number of proteins", x = "Fold enrichment", y = "",colour = "FDR", title = expression(paste(italic('K. pneumoniae')))) +
   theme_pubr()+
-  #guides(alpha="none", colour = "none", fill= "none", size = "none")+
   theme(axis.text.y = element_text(lineheight = 0.8, size = 9, colour = toplot$colour),
         legend.position="right")
-        #legend.direction = "horizontal")
+
 
 pdf(paste0(plotdir, "Fig.S9_GO_enrich_proteomics_ResistantStrains.pdf"), width = 12, height = 15)
 design <- "
@@ -3489,36 +3123,6 @@ jColors <- as.character(colours$values)
 names(jColors) <- colours$cross_species_conservation
 
 toplot = toplot %>% filter(Condition_treatment=="Nx")
-
-#toplot = read.table(paste0(inputdir,"remsut_conservation_annotated_forplotting.txt"), sep="\t", header = T)
-
-# colours = data.frame("cross_species_conservation" = c("conserved across species", "conserved within species","strain-specific", "no orthology group annotated"),
-#                      "values" = c("black", "#67a9cf","#ef8a62", "darkgrey"))
-# 
-# jColors <- as.character(colours$values)
-# names(jColors) <- colours$cross_species_conservation
-# 
-# strainstorem = c("dadeL", "dmprA")
-# bla = filter(toplot, Condition_treatment == "Nx" & !(Strain_treatment %in% strainstorem))
-# 
-# # add new strain designation
-# # strain_key = readxl::read_xlsx(paste0(inputdir,"new_designation_240525_MT_EC.xlsx")) %>%
-# #   clean_names()
-# strain_key = readxl::read_xlsx(paste0(inputdir,"SuppTable1_290601.xlsx"),skip=1) %>%
-#   clean_names() %>%
-#   filter(!(genotype %in% c("K. pneumoniae PRZ pKP2442 mcr-1", "K. pneumoniae PRZ pTOPO", "K. pneumoniae PRZ pTOPO mcr-1"))) %>%
-#   mutate(name_used = sapply(strsplit(as.character(name_used), " "),'[',3))
-# 
-# bla =   bla %>%
-#   mutate(name_used = sub("[RS]$", "",complete_name),
-#          name_used = sapply(strsplit(as.character(name_used), " "),'[',3)) %>%
-#   inner_join(strain_key, by="name_used")
-# 
-# bla = bla %>% 
-#   dplyr::select(og1, conservation, cross_species_conservation,protein_ID,gene_name,description, Condition_treatment,Condition_control, new_designation, logFC,AveExpr,t,P.Value,adj.P.Val,B,hit,species) %>%
-#   dplyr::rename(Strain_treatment=new_designation,
-#                 og=og1)
-
 
 
 pdf(paste0(plotdir, "Fig.S11a_volcano_sensitive.pdf"), width = 10, height = 1.9)
