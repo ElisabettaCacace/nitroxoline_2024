@@ -1,0 +1,281 @@
+---
+title: "GO enrichment"
+output: html_document
+date: "2025-01-13"
+---
+
+This code is for the Gene Ontology enrichment of hits from chemical genetics. The same code can be used for hits from TPP and proteomics (using the same proteome as in this code as background).
+
+# dirs
+```{r}
+home_dir = "~/Documents/EMBL/Nx/Nx_paper/REVISION/nitroxoline_2024/GO_enrichment/"
+
+inputdir = paste0(home_dir, "input/")
+outputdir =  paste0(home_dir, "output/")
+
+sourcedatadir = "~/Documents/EMBL/Nx/Nx_paper/REVISION/nitroxoline_2024/figures/source_data/"
+
+```
+
+
+# increased fitness
+```{r}
+# read chemical genetic data
+
+all = readxl::read_xlsx(paste0(sourcedatadir, "source_Fig.3b.xlsx")) %>%
+  mutate(gene = toupper(gene)) %>%
+  mutate(gene = case_when(gene == "MURE (D3A)-KAN" ~ "MURE",
+                          gene == "LPXC (G210S)-KAN" ~ "LPXC",
+                          gene == "IMP4213" ~ "LPTD",
+                          gene == "YDFY/GNSB" ~ "GNSB",
+                          gene == "GNTY" ~ "NFUA",
+                          gene == "YHBV" ~ "UBIV",
+                          gene == "YHBU" ~ "UBIU",
+                          gene == "YHBZ" ~ "OBGE",
+                          gene == "YHBT" ~ "UBIT",
+                          gene == "YHBJ" ~ "RAPZ",
+                          gene == "YHBH" ~ "HPF",
+                          gene == "YHBT" ~ "UBIT",
+                          gene == "YHBC" ~ "RIMP",
+                          gene == "RFAB" ~ "WAAB",
+                          gene == "RFAC" ~ "WAAC",
+                          gene == "RFAD" ~ "HLDD",
+                          gene == "RFAE" ~ "HLDE",
+                          gene == "RFAF" ~ "WAAF",
+                          gene == "RFAG" ~ "WAAG",
+                          gene == "RFAI" ~ "WAAO",
+                          gene == "RFAJ" ~ "WAAJ",
+                          gene == "RFAL" ~ "WAAL",
+                          gene == "RFAP" ~ "WAAP",
+                          gene == "RFAQ" ~ "WAAQ",
+                          gene == "RFAS" ~ "WAAS",
+                          gene == "RFAY" ~ "WAAY",
+                          gene == "RFAZ" ~ "WAAZ",
+                          gene == "YIFC" ~ "WZZE",
+                          gene == "VACJ" ~ "MLAA",
+                          gene == "LPCA" ~ "GMHA",
+                          gene == "YRBA" ~ "IBAG",
+                          gene == "YAET-KAN" ~ "BAMA",
+                          gene == "GNTY" ~ "NFUA",
+                          gene == "YDHD" ~ "GRXD",
+                          gene == "MPRA" ~ "EMRR",
+                          TRUE ~ gene))
+
+
+hits <- all %>%
+  filter(padj <= 0.01)
+
+
+GOid.GOterms_raw <- read_lines('http://purl.obolibrary.org/obo/go/go-basic.obo')
+GOid.GOterms <- bind_rows(lapply(grep('\\[Term\\]',GOid.GOterms_raw), function(term) {
+  tmp_subset <- GOid.GOterms_raw[term:(term+1000)]
+  if(length(grep('\\[Term\\]',tmp_subset)) >1) {
+    tmp_subset_2 <- tmp_subset[1:(grep('\\[Term\\]',tmp_subset)[2]-1)]
+  }else{
+    tmp_subset_2 <- tmp_subset[1:(grep('\\[Typedef\\]',tmp_subset)[1]-1)]
+  }
+  id <- sub('.*id: ','',tmp_subset_2[grep('id: ',tmp_subset_2)])
+  term_2 <- sub('.*name: ','',tmp_subset_2[grep('name: ',tmp_subset_2)])
+  ont <- sub('.*namespace: ','',tmp_subset_2[grep('namespace: ',tmp_subset_2)])
+  data.frame(GO.id = id,
+             GO.term = term_2,
+             GO.tree = ont)
+})) %>%
+  mutate(GO.tree = case_when(GO.tree == 'biological_process' ~ 'BP',
+                             GO.tree == 'molecular_function' ~ 'MF',
+                             GO.tree == 'cellular_component' ~ 'CC'))
+
+###Remove obsolote GO terms
+GOid.GOterms_clean <- GOid.GOterms %>%
+  tibble::as_tibble() %>%
+  filter(!grepl('obsolete ',GO.term))
+
+
+###Import GOs annotations for each gene for the species of interest
+Protein_GO_anno <- fread(paste0(inputdir,"uniprotkb_proteome_UP000000625_2024_04_23.tsv")) %>% 
+  clean_names() %>%
+  mutate(gene =sapply(strsplit(as.character(entry_name),"_"),'[',1)) %>%
+  dplyr::select(gene,
+                GO.id = gene_ontology_go) %>% 
+  separate_rows(GO.id, sep = ';') %>% 
+  mutate(GO.id = sub('\\]','',sub('.* \\[','',GO.id))) 
+
+
+# # slim this : if terms share exact same number of proteins keep the 1 with lowest hierarchy in GO (keep higher number)
+test = Protein_GO_anno %>%
+  mutate(presence=rep(1,nrow(.))) %>%
+  pivot_wider(names_from = gene, values_fill = 0,values_from = presence, id_cols = GO.id)
+
+sorted_df <- test %>%
+  arrange(across(-GO.id), desc(GO.id))
+
+# Remove duplicate rows based on the values in all other columns, keeping the first occurrence (highest GO.id)
+filtered_df <- sorted_df %>%
+  distinct(across(-GO.id), .keep_all = TRUE)
+
+filtered_dt <- as.data.table(filtered_df)
+
+setDT(filtered_df)
+
+# Melt the data.table
+Protein_GO_anno <- melt(filtered_df, 
+                        id.vars = names(filtered_df)[1], 
+                        measure.vars = names(filtered_df)[-1])
+
+Protein_GO_anno = Protein_GO_anno %>%
+  filter(value != 0) %>%
+  filter(GO.id != "" & GO.id %in% unique(GOid.GOterms_clean$GO.id)) %>%
+  select(-value) %>%
+  rename(gene = variable)
+
+
+###Determine which GOs are present in the experiment that we are interested and
+###filter for GO terms that contain at least 2 genes (to decrease the size of the background)
+proteins_identified <- unique(all %>%
+                                distinct(gene))$gene
+
+Protein_GO_annotations <- Protein_GO_anno %>%
+  dplyr::filter(gene %in% proteins_identified) %>% 
+  dplyr::group_by(GO.id) %>% 
+  dplyr::filter(n()>1) %>%
+  dplyr::ungroup()
+
+
+GO_id_freq_background <- Protein_GO_annotations %>% 
+  dplyr::group_by(GO.id) %>% 
+  dplyr::summarise(freq_background = n()) %>% 
+  dplyr::ungroup()
+
+
+###Get list of hit genes and annotate their GOs
+#hit_genes <- unique(hits_df_whole$representative)
+
+# other option based on MAD = 1.4862 median (| xi - median(x) |)
+keiomad = mad(all$log2fc, na.rm = T)
+lowthr = median(all$log2fc, na.rm = T) - 3*keiomad
+upthr = median(all$log2fc, na.rm = T) + 3*keiomad
+
+toenrich = filter(hits, padj <= 0.01 & log2fc > upthr)
+#toenrich = filter(hits, padj <= 0.01 & log2fc < lowthr)
+hit_genes <- unique(toenrich$gene)
+
+# # here problem : fetch uniprot Id for these
+# uniprotID_name <- fread(paste0(inputdir,"uniprotkb_proteome_UP000000625_2024_04_23 (1).tsv")) %>%
+#   select(Entry,`Entry Name`) %>%
+#   mutate(representative = sapply(strsplit(as.character(`Entry Name`), "_"),'[',1)) %>%
+#   select(Entry,representative) %>%
+#   inner_join(toenrich, by= "representative") %>%
+#   select(-representative) %>%
+#   rename(representative = Entry)
+# 
+# hit_genes <- unique(uniprotID_name$representative)
+
+hit_genes_GO <- left_join(data.frame(gene = hit_genes),Protein_GO_annotations) %>% 
+  dplyr::filter(!is.na(GO.id)) %>% 
+  dplyr::filter(GO.id != "") %>% 
+  dplyr::distinct() %>%
+  filter(GO.id %in% unique(Protein_GO_annotations$GO.id))
+
+# slim this too
+# # slim this : if terms share exact same number of proteins keep the 1 with lowest hierarchy in GO (keep higher number)
+test = hit_genes_GO %>%
+  mutate(presence=rep(1,nrow(.))) %>%
+  pivot_wider(names_from = gene, values_fill = 0,values_from = presence, id_cols = GO.id)
+
+sorted_df <- test %>%
+  arrange(across(-GO.id), desc(GO.id))
+
+# Remove duplicate rows based on the values in all other columns, keeping the first occurrence (highest GO.id)
+filtered_df <- sorted_df %>%
+  distinct(across(-GO.id), .keep_all = TRUE)
+
+filtered_dt <- as.data.table(filtered_df)
+
+setDT(filtered_df)
+
+# Melt the data.table
+filtered_df <- melt(filtered_df, 
+                    id.vars = names(filtered_df)[1], 
+                    measure.vars = names(filtered_df)[-1])
+
+hit_genes_GO = filtered_df %>%
+  filter(value != 0) %>%
+  filter(GO.id != "" & GO.id %in% unique(GOid.GOterms_clean$GO.id)) %>%
+  select(-value) %>%
+  rename(gene = variable)
+
+#########
+
+
+###Calculate size of foreground (how many genes are hits) and
+###calculate the size of the background (how many genes are identified)
+len_unique_fore_genes <- length(unique(hit_genes_GO$gene))
+len_unique_back_genes <- length(unique(Protein_GO_annotations$gene))
+
+
+###For each GO that is in the hit genes calculate the values needed for the Fisher test
+GO_id_freq <- hit_genes_GO %>% 
+  dplyr::group_by(GO.id) %>% 
+  dplyr::summarise(freq_foreground = n()) %>% 
+  dplyr::ungroup() %>% 
+  left_join(GO_id_freq_background, by = c('GO.id')) %>% 
+  dplyr::mutate(freq_back_minus_fore = freq_background - freq_foreground,
+                freq_fore_non_GOid = len_unique_fore_genes - freq_foreground,
+                freq_back_non_GOid = len_unique_back_genes - freq_back_minus_fore,
+                frac_genes_GOid = freq_foreground / len_unique_fore_genes,
+                fold_enrich = frac_genes_GOid / (freq_background / len_unique_back_genes),
+                num_genes_back = freq_foreground + freq_back_minus_fore)
+
+###For each GO perform the Fisher test
+#fisher_test_result <- bind_rows(
+
+fisher_test_result <- bind_rows(lapply(GO_id_freq$GO.id, function(GO_id) {
+  #GO_id ="GO:0000018"   
+  
+  tmp <- GO_id_freq %>% 
+    dplyr::filter(GO.id == GO_id) %>% 
+    dplyr::select(freq_foreground, freq_fore_non_GOid, freq_back_minus_fore, freq_back_non_GOid)
+  
+  # Print GO.id for debugging
+  cat("Processing GO.id:", GO_id, "\n")
+  
+  if (nrow(tmp) == 0) {
+    cat("Error with GO.id:", GO_id, "\n")
+    stop("Empty dataframe encountered for GO.id:", GO_id)
+  }
+  
+  data.frame(GO.id = GO_id,
+             GO.tree = GOid.GOterms_clean$GO.tree[GOid.GOterms_clean$GO.id == GO_id],
+             GO.term = GOid.GOterms_clean$GO.term[GOid.GOterms_clean$GO.id == GO_id],
+             hit_genes = paste(unique(hit_genes_GO$Uniprot_ID[hit_genes_GO$GO.id == GO_id]), collapse = '/'),
+             p_value = fisher.test(matrix(as.numeric(tmp), nrow = 2), alternative="greater")$p.value)
+}))
+
+
+###Correct for multiple comparison with BH
+fisher_test_result$p_adj <- p.adjust(fisher_test_result$p_value, method = "BH")
+
+###Generate final table
+fisher_test_joined <- dplyr::left_join(fisher_test_result,GO_id_freq, by = 'GO.id') %>% 
+  dplyr::group_by(GO.tree) %>% 
+  dplyr::arrange(p_adj, .by_group = T) %>% 
+  dplyr::ungroup()
+
+
+toplot = dplyr::filter(fisher_test_joined, p_adj < 0.05) 
+
+# ggplot(toplot, aes(y = reorder(GO.term, -p_adj),x = -log10(p_adj))) +
+#   geom_segment(aes(xend=0, yend=GO.term), color= "darkgrey") +
+#   geom_point(aes(size=freq_foreground,color=fold_enrich)) +
+#   scale_colour_gradientn(colours = c("#CCCCCC","#333333")) +
+#   scale_y_discrete(labels = function(x) str_wrap(x, width = 45)) +
+#   labs(size = "number of genes", x = "-log10(adjusted p-value)", y = "",colour = "fold enrichment") +
+#   theme_pubr()+
+#   theme(axis.text.y = element_text(lineheight = 0.8, size = 9)) +
+#   guides(alpha="none")
+
+
+write.table(fisher_test_joined, paste0(inputdir, "GOenrich_Keio_Up.txt"), sep = "\t", quote = F, row.names = F)
+
+```
+
