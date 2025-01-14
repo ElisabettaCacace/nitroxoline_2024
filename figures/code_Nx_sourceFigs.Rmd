@@ -29,7 +29,6 @@ home_dir = "~/Documents/EMBL/Nx/Nx_paper/REVISION/nitroxoline_2024/figures/"
 
 inputdir = paste0(home_dir, "input/")
 plotdir =  paste0(home_dir, "plots/")
-outputdir =  paste0(home_dir, "output/")
 
 sourcedatadir = paste0(home_dir, "source_data/")
 supptablesdir = paste0(home_dir, "SuppTables/")
