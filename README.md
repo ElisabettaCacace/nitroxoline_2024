@@ -4,3 +4,5 @@ Source data and analysis required for results and figures presented in the manus
 -  `2DTPP` contains two-dimensional thermal proteome profiling data and analysis
 -  `GO_enrichment` contains the analysis needed to perform Gene Ontology enrichments on hits from 2D-TPP, chemical genetics and proteomics experiments.
 - `figures` contains source data and code to generate figures and the code to calculate Bliss interaction scores from the combinatorial screen data (Fig. 2a).
+
+Chemical genetic data analysis, performed by Vallo Varik, can be found here https://github.com/vvarik/nitroxoline.
