@@ -1,0 +1,191 @@
+{
+  "SingleColony": false,
+  "DebugMode": false,
+  "profileSettings": [
+    {
+      "ProfileName": "Morphology\u0026Color profile",
+      "rotationSettings": {
+        "autoRotateImage": false,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 470,
+        "FixedCropping_Y_Start": 330,
+        "FixedCropping_X_End": 4140,
+        "FixedCropping_Y_End": 2750
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": true,
+        "ColonyBreathingSpace": 50
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.3
+      }
+    },
+    {
+      "ProfileName": "Colony growth",
+      "rotationSettings": {
+        "autoRotateImage": false,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 605,
+        "FixedCropping_Y_Start": 330,
+        "FixedCropping_X_End": 4190,
+        "FixedCropping_Y_End": 2830
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": true,
+        "ColonyBreathingSpace": 15
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.3
+      }
+    },
+    {
+      "ProfileName": "Colony growth inverted",
+      "rotationSettings": {
+        "autoRotateImage": true,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 0,
+        "FixedCropping_Y_Start": 0,
+        "FixedCropping_X_End": 1000,
+        "FixedCropping_Y_End": 1000
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": false,
+        "ColonyBreathingSpace": 30
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.4
+      }
+    },
+    {
+      "ProfileName": "B.subtilis sporulation",
+      "rotationSettings": {
+        "autoRotateImage": true,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 0,
+        "FixedCropping_Y_Start": 0,
+        "FixedCropping_X_End": 1000,
+        "FixedCropping_Y_End": 1000
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": false,
+        "ColonyBreathingSpace": 30
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.4
+      }
+    },
+    {
+      "ProfileName": "CPRG profile",
+      "rotationSettings": {
+        "autoRotateImage": true,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 0,
+        "FixedCropping_Y_Start": 0,
+        "FixedCropping_X_End": 1000,
+        "FixedCropping_Y_End": 1000
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": true,
+        "ColonyBreathingSpace": 30
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.4
+      }
+    },
+    {
+      "ProfileName": "Biofilm formation",
+      "rotationSettings": {
+        "autoRotateImage": true,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 0,
+        "FixedCropping_Y_Start": 0,
+        "FixedCropping_X_End": 1000,
+        "FixedCropping_Y_End": 1000
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": true,
+        "ColonyBreathingSpace": 30
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.4
+      }
+    },
+    {
+      "ProfileName": "Morphology profile",
+      "rotationSettings": {
+        "autoRotateImage": true,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 0,
+        "FixedCropping_Y_Start": 0,
+        "FixedCropping_X_End": 1000,
+        "FixedCropping_Y_End": 1000
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": false,
+        "ColonyBreathingSpace": 30
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.4
+      }
+    },
+    {
+      "ProfileName": "Xgal assay",
+      "rotationSettings": {
+        "autoRotateImage": true,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 0,
+        "FixedCropping_Y_Start": 0,
+        "FixedCropping_X_End": 1000,
+        "FixedCropping_Y_End": 1000
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": false,
+        "ColonyBreathingSpace": 30
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.4
+      }
+    }
+  ],
+  "ArrayFormat": 1536
+}

@@ -1,0 +1,414 @@
+---
+title: "Nitroxoline chemical genetics"
+date: 2023-03-29
+output: 
+    md_document:
+      preserve_yaml: FALSE
+      fig_width: 7
+      fig_height: 3.5
+      toc: yes
+      toc_depth: 2
+---
+
+# Introduction 
+
+Analysis for nitroxoline chemical genetics.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, dpi=300, 
+  fig.path = "output/fig/")
+knitr::opts_knit$set(global.par = TRUE)
+
+pacman::p_load(data.table, tidyverse, cowplot, limma, Biobase)
+theme_set(theme_cowplot(font_size=12))
+options(datatable.print.nrows=20)
+
+# --------------------------------------------------
+# define functions
+# --------------------------------------------------
+readData = function(path, ...) {
+  lapply(dir(path, full.names=T), fread) %>% 
+    setNames(., dir(path)) %>% 
+    rbindlist(idcol='fname')
+}
+
+
+fitLinMod = function(dt, response='fit_size') {
+
+  dt = as.data.table(dt)
+  dat_col = dt %>%  
+    dcast(gene ~ cond + clone + brep, value.var=response) %>% 
+    as.data.table()
+
+  dat_mat = dat_col[, !c('gene')] %>% as.matrix()
+  rownames(dat_mat) = dat_col[['gene']]
+  colnames(dat_mat) = NULL
+
+  condition = names(dat_col)[-1]
+  ctrl_idx = which(grepl('lb', condition))
+  trt_idx = which(!grepl('lb', condition))
+  condition[ctrl_idx] = 'ctrl'
+  condition[trt_idx] = 'trt'
+  cols = data.frame(condition)
+  
+  eset = ExpressionSet(dat_mat, phenoData = AnnotatedDataFrame(cols))
+  
+  X = model.matrix(~0 + cols$condition)
+
+  colnames(X) = gsub('cols\\$condition', '', colnames(X))
+
+  fit = lmFit(eset, X)
+  contrast.matrix = makeContrasts(trt-ctrl, levels = X)
+  fit2a = contrasts.fit(fit, contrast.matrix)
+  fit2 = eBayes(fit2a)
+  
+  out_dt = topTable(fit2, n=Inf, adjust="fdr") 
+
+  out_dt = out_dt %>% 
+    mutate(gene = rownames(out_dt)) %>% 
+    left_join(unique(dt[, .(gene, per)], by='gene')) %>% 
+    mutate(per = cut(per, seq(0, 16, 2), 
+        labels = c('1,2', '3,4', '5,6', '7,8', '9,10', '11,12', '13,14', '15,16'))) %>% 
+    as.data.table() 
+
+
+  list(dt = out_dt, fit=fit, fit_contrasts=fit2a, fit_ebayes=fit2)
+
+}
+
+
+myVolc = function(dt, subtitle=NULL, xlab=expression(log[2]*' Fold Change'),
+  col=NULL, thr=1) {
+
+  dt = filter(dt, gene!='empty')
+  
+  p1 = dt %>% {
+    ggplot(., aes(logFC, -log10(adj.P.Val))) +
+      scale_color_brewer(palette='Dark2') +
+      labs(y = expression(-log[10]*'(adj p-val)'), 
+        x=xlab, #expression(Delta*' fitness'[size]),
+        color='from edge', 
+        subtitle=subtitle) +
+      theme(
+        aspect.ratio=1,
+        legend.position=c(0.03, 0.03), 
+        legend.title=element_text(size=12),
+        legend.title.align=1,
+        legend.justification=c('left', 'bottom'),
+        legend.key.size=unit(1, 'mm')
+      )
+  }
+
+  if(!missing(col)) {
+
+    col=ensym(col)
+    p1 + geom_point(aes(col=!!col), size=1) +
+    ggrepel::geom_text_repel(aes(label = gene, col=!!col), 
+      seed = 1, size = 3, show.legend = F,
+      data = filter(dt, abs(logFC) > thr & adj.P.Val < 0.05)
+    ) 
+  } else {
+    p1 + 
+      geom_point(
+        aes(fill= adj.P.Val < 0.05 & abs(logFC) > thr), 
+        pch=21, col='grey30', size=1, show.legend=F
+        ) +
+      scale_fill_manual(values=c('grey70', 'grey10')) +
+      ggrepel::geom_text_repel(aes(label = gene), 
+        seed = 1, size = 3, show.legend = F, 
+        data = filter(dt, abs(logFC) > thr & adj.P.Val < 0.05 & 
+          !grepl('bad', gene))
+      ) 
+  }
+
+}
+```
+ 
+```{r load-n-add-metadata}
+map = data.table(
+  img     = 1:18,
+  plt     = rep(1:6, each=3),
+  brep    = rep(1:3, 6)
+)
+
+perim = fread('input/dat/perimeter1536.csv') %>% 
+  .[, row := 1:32]  %>% 
+  melt(id.vars='row', variable='col', value='per') %>% 
+  .[, col := gsub('V', '', col) %>% as.integer()]
+
+
+keio_map = fread('input/dat/keio_map.csv') %>% 
+  .[, c('text', 'old_eck', 'old_jw', 'old_gene') := 
+    tstrsplit(flag.comment, '___')] %>% 
+  .[, `:=`(
+    eck=fifelse(eck=='empty' & !is.na(old_eck), old_eck, eck),
+    jw =fifelse(jw =='empty' & !is.na(old_jw),  old_jw,   jw)
+  )] %>% 
+  .[, c('text', 'old_eck', 'old_jw', 'old_gene') := NULL] %>% 
+  rename(plt = plt1536, col=col1536, row=row1536) %>% 
+  .[, mut_id := interaction(plt, row, col)] %>% 
+  perim[., on=.(row, col)] # perimeter
+
+# fill in the gene names and recode the incorrect ones
+keio_map[jw=='empty',   gene := paste0('not_', mut_id, sep='')]
+keio_map[gene %in% c('empty', ''), gene := paste0('not_', jw, sep='')]
+
+keio_map[, clone := match(mut_id, unique(mut_id)), gene] 
+
+
+cond = './input/dat/iris/cond/' %>% 
+  readData() %>% 
+  .[, c('medium', 'cond', 'lib', 'img') := tstrsplit(fname, "-", fixed=TRUE)] %>% 
+  .[, img := gsub('_.JPG.iris', '', img) %>% as.integer] %>% 
+  .[, c('medium', 'lib') := NULL] %>%   # drop the unnecessary
+  map[., on=.(img)] %>% 
+  .[, trep := 1]
+
+lb = './input/dat/iris/LB_control/' %>% 
+  readData() %>% 
+  .[, img := str_extract(fname, '[0-9]{2}') %>% as.numeric] %>% 
+  map[., on=.(img)] %>% 
+  .[, trep := str_extract(fname, '[0-9]{1}') %>% as.numeric] %>% 
+  .[, brep := fifelse(trep < 5, brep, brep + 3)] %>% 
+  .[, trep := fifelse(trep < 5, trep, trep - 4)] %>% 
+  .[, cond := 'lb']
+
+dat = rbind(cond, lb) %>% 
+  # tidy
+  rename(col = column, circ=circularity, opac=opacity) %>% 
+  .[, well_id := paste(cond, img, row, col, sep='.')] %>% 
+
+  # add keio map
+  keio_map[, .(plt, col, row, per, gene, mut_id, clone)
+    ][., on=.(plt, col, row)] %>% 
+
+  # add some variables
+  .[, plt_id := interaction(cond, img, brep, trep)]  # unique plate id
+
+
+#dat[, unique(cond)]
+#dat[, .N, .(cond, plt, brep)][order(N)]
+#dat[gene=='relA' & brep==2 & cond=='nitro1']
+#unique(dat[gene=='relA'], by='clone')
+```
+
+# Look at raw data
+
+```{r fig_height=4.5}
+myCols = RColorBrewer::brewer.pal(8, 'Dark2')
+
+p1 = dat %>% 
+  mutate(cond=factor(cond)) %>% 
+  group_by(gene, cond) %>% 
+  summarise(size=median(size), opac=median(opac)) %>% 
+  mutate(cond = fct_reorder(cond, opac, .desc=T)) %>% 
+  ggplot(aes(cond, size)) +
+  geom_point(position=position_jitter(seed=1, width=0.3), 
+    alpha=1, pch=21, col= 'grey30', fill='grey70', size=0.5) +
+  geom_violin(show.legend=F, alpha=0.4) +
+  scale_color_brewer(palette='Dark2', name='') +
+  coord_flip() +
+  #facet_wrap(~cond, nrow=3) +
+  theme(
+    legend.position=c(0.03, 0.03), 
+    legend.direction='horizontal',
+    legend.title=element_text(size=12),
+    legend.title.align=1,
+    legend.justification=c('left', 'bottom'),
+    legend.key.size=unit(1, 'mm')#,
+    #strip.background = element_blank(),
+    #strip.text.x = element_blank()
+  )
+
+plot_grid(
+  p1 + 
+    scale_y_log10() +
+    labs(y='Raw size', x=''),
+  p1 %+% aes(y=opac) + 
+    #scale_y_log10(
+    scale_y_continuous(trans='log2', breaks=c(2000, 8000, 32000, 128000)
+      #labels = scales::trans_format("log10", scales::math_format(10^.x))j
+      #labels = scales::trans_format("log2", scales::math_format(2^.x))
+      ) +
+    labs(y='Raw opacity', x='')
+)
+```
+
+The effect of the conditions (compared to LB) was small.
+
+
+# Data analysis
+
+Working in parallel with both opacity (which we prefer) and colony size:
+
+1. Bring the median of two outermost columns/rows multiplicatively to plate
+   median
+2. Calculate the mutant fitness as a fraction of the plate median
+3. Estimate the multiplicative change in mutant fitness per condition using
+   empirical Bayes' moderated T-test
+
+# Step 1 | Adjust outer rows/cols
+
+```{r}
+# # plate middle mean as per Collins et al 2006 here just for reference
+# # for it is a complicated way to calculate a median
+# # which they realize and advocate for in Collins 2010
+# getPMM = function(x, per) {
+#   mean(x[per > 2 & x %between% quantile(x, c(0.4, 0.6))])
+# } 
+# dat[, pmm_size := getPMM(size, per), plt_id]
+# dat[, pmm_opac:= getPMM(opac, per), plt_id]
+
+# plate median
+dat[, med_size := median(size), plt_id]
+dat[, med_opac:= median(opac), plt_id]
+# plate outer median
+dat[, pom_size := median(size[per <= 2]), plt_id]
+dat[, pom_opac := median(opac[per <= 2]), plt_id]
+# store raw values
+dat[, size_raw := size]
+dat[, opac_raw := opac]
+# calculate adjusted values
+dat[, size := fifelse(per > 2, size, size*med_size/pom_size)]
+dat[, opac := fifelse(per > 2, opac, opac*med_opac/pom_opac)]
+```
+
+```{r}
+p2 = dat %>% 
+  mutate(outer = fifelse(per < 3, 'outer two', 'inner cols/rows')) %>% 
+  ggplot(aes(size, size_raw, fill=outer)) + 
+  geom_abline(lty=2, col='grey30') +
+  scale_fill_manual(values=c('grey50', 'grey90')) +
+  geom_point(pch=21, col='grey30', size=1) +
+  theme(aspect.ratio=1, legend.position=c(0.01, 0.975))
+
+myBreaks = c(0, 100000, 200000)
+
+plot_grid(
+  p2 + labs(fill='', x='Adjusted size, pixels', y='Raw size, pixels'),
+  p2 %+% aes(opac, opac_raw) + 
+    scale_y_continuous(labels = scales::label_number()) +
+    scale_x_continuous(labels = scales::label_number()) +
+    labs(fill='', x='Adjusted opacity', y='Raw opacity'), 
+  align='hv'
+)
+```
+
+As the adjustment was multiplicative, larger deviations from plate median
+appear corrected "more strongly" in linear scale, i.e. were y-axis in log
+scale, dark and light grey points would be parallel.
+
+# Step 2 | Calculate fitness
+
+```{r}
+dat[, fit_size := log2(size/median(size)), plt_id]
+dat[, fit_opac := log2(opac/median(opac)), plt_id]
+```
+
+```{r}
+plot_grid(
+  dat %>% 
+    ggplot(aes(fit_size, fit_opac)) +
+    geom_point(pch=20, size=0.1, alpha=0.2) +
+    labs(
+      x=expression(log[2]*'(fitness size)'),
+      y=expression(log[2]*'(fitness opacity)')
+    ),
+  NULL
+)
+```
+
+There's some interesting subset with lower opacity and bigger size than on
+average.
+
+# Step 3 | Change per condition 
+
+In the following, names are given to genes of mutants with more than 2-fold and
+significantly changed fitness.
+
+One could speculate that the somewhat stronger effect of a drug, as for nitro2
+vs nitro1 was beneficial to elucidate the phenotype.
+
+## Opacity
+
+Find the results for each condition as a csv file [here](output/csv).
+
+```{r}
+condition = dat[cond!='lb', unique(cond)]
+
+# opac = lapply(condition, function(x) {
+#   cat('Fitting', x, '\n')
+#   sub = dat[cond %in% c(x, 'lb')]
+#   sub %>% 
+#     # collapse tech reps
+#     .[, opac := median(opac), .(gene, clone, brep, cond)] %>%
+#     unique(, by=c('gene', 'clone', 'brep', 'cond')) %>% 
+#     group_by(plt_id) %>% 
+#     mutate(fit_opac = log2(opac/median(opac))) %>% 
+#     unique(, by=c('gene', 'clone', 'brep', 'cond')) %>% 
+#     fitLinMod('fit_opac')
+# })
+# names(opac) = condition
+# saveRDS(opac, 'output/rds/opac.rds')
+opac = readRDS('output/rds/opac.rds')
+
+plt_lst = lapply(condition, function(x) {
+  myVolc(opac[[x]][[1]], thr=1) + 
+    labs(subtitle=x) +
+    {if(x=='5FU') ylim(0, 25)} +
+    {if(x!='5FU') ylim(0, 15)} +
+    {if(x=='chloprothixene') xlim(-6.5, 2.5)} +
+    {if(x!='chloprothixene') xlim(-3.5, 2.5)} +
+    theme_cowplot(font_size=10) +
+    theme(plot.subtitle=element_text(size=10)) 
+})
+
+plot_grid(plotlist=plt_lst, ncol=2)
+```
+
+```{r output_results}
+res = lapply(condition, function(x) {
+  opac[[x]][[1]][, .(gene, log2fc=logFC, t, pval=P.Value, padj=adj.P.Val)] %>% 
+    arrange(pval, log2fc) %>% select(gene, log2fc, padj)
+  }) %>% 
+  setNames(., condition)
+
+# lapply(names(res), function(x) {
+#   fwrite(res[[x]], file=paste0('output/csv/', x, '.csv'))
+#   })
+```
+
+## Size
+
+```{r}
+condition = dat[cond!='lb', unique(cond)]
+
+# size = lapply(condition, function(x) {
+#   cat('Fitting', x, '\n')
+#   sub = dat[cond %in% c(x, 'lb')]
+#   sub %>% 
+#     # collapse tech reps
+#     .[, size := median(size), .(gene, clone, brep, cond)] %>%
+#     unique(, by=c('gene', 'clone', 'brep', 'cond')) %>% 
+#     group_by(plt_id) %>% 
+#     mutate(fit_size = log2(size/median(size))) %>% 
+#     unique(, by=c('gene', 'clone', 'brep', 'cond')) %>% 
+#     fitLinMod('fit_size')
+# })
+# names(size) = condition
+# saveRDS(size, 'output/rds/size.rds')
+size = readRDS('output/rds/size.rds')
+
+
+plt_lst = lapply(condition, function(x) {
+  myVolc(size[[x]][[1]], thr=1) + 
+    labs(subtitle=x) +
+    {if(x=='5FU') ylim(0, 20)} +
+    {if(x!='5FU') ylim(0, 15)} +
+    {if(x=='chloprothixene') xlim(-4.5, 2)} +
+    {if(x!='chloprothixene') xlim(-2.5, 2)} +
+    theme_cowplot(font_size=10)
+})
+
+plot_grid(plotlist=plt_lst, ncol=2)
+```
