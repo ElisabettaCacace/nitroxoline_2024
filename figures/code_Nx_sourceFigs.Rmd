@@ -554,7 +554,7 @@ toplot= readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2b.xlsx")) %>%
                             TRUE ~ "resistant"))
 
 test = toplot %>%
-  #don't include empty vector control in main fig, but in ED fig.
+  #don't include empty vector control in main fig, but in Supplementary Fig. 4 (full growth curves)
   filter(!(strain %in% c("E. coli J53 pTOPO", "E. coli J53 pTOPO_mcr-1", "K. pneumoniae PRZ pTOPO"))) %>%
   mutate(species = case_when(grepl("E. coli",strain) ~ "italic('E. coli')",
                             TRUE ~"italic('K. pneumoniae')")) %>%
@@ -2913,9 +2913,9 @@ k <- plot2dTppFcHeatmap(
 
 
 
-pdf(paste0(plotdir, "Fig.S6_thermal_profile_respiratory_chain.pdf"), width = 12, height = 7)
+pdf(paste0(plotdir, "Fig.S6_thermal_profile_respiratory_chain.pdf"), width = 14, height = 7)
 
-cowplot::plot_grid(a, b,c,d,e,f,g,h,i,j,k, ncol = 4)
+cowplot::plot_grid(a, b,c,d,e,f,g,h,i,j,k, ncol = 5)
 
 dev.off()
 
