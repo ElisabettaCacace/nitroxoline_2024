@@ -329,7 +329,7 @@ dev.off()
 
 See source data ED Fig. 2b
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.1e_EDFig.2b.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.1e_SuppFig.2b.xlsx")) %>%
   filter(`Nitroxoline concentration (µg/ml)` != 0)
 
 
@@ -370,7 +370,7 @@ dev.off()
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2a_EDFig.3a.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2a_SuppFig.3a.xlsx"))
 
   hzt_alone = toplot %>% filter(nitroxoline_concentration == 0.00) %>%
     dplyr::select(c("horizontal_drug","horizontal_concentration", "norm_fitness")) %>%
@@ -990,14 +990,14 @@ toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.3c.xlsx")) %>%
 
 pdf(paste0(plotdir, "Fig.3c_NPN.pdf"), width = 5.5, height = 5)
 
-colours = data.frame("Condition" = c("PolymyxinB_10","EDTA_0.4", "Nitroxoline_0.9", "Nitroxoline_1.8", "Nitroxoline_0.45", "Chloramphenicol_8", "nodrug_0"),
+colours = data.frame("Condition" = c("PolymyxinB_10","EDTA_0.4", "Nitroxoline_0.45", "Nitroxoline_0.9", "Nitroxoline_0.225", "Chloramphenicol_8", "nodrug_0"),
                      "values" = c("#999999","#999999", "#999999","#999999","#999999", "#999999", "#999999"))
 jColors <- as.character(colours$values)
 names(jColors) <- colours$Condition
 
 
  ggerrorplot(toplot, x = "Condition", y = "NPN_fluorescence", error.plot="errorbar",
-          order = c("PolymyxinB_10","EDTA_0.4", "Nitroxoline_0.9", "Nitroxoline_1.8", "Nitroxoline_0.45",  "Chloramphenicol_8", "nodrug_0"),
+          order = c("PolymyxinB_10","EDTA_0.4", "Nitroxoline_0.45", "Nitroxoline_0.9", "Nitroxoline_0.225",  "Chloramphenicol_8", "nodrug_0"),
   add = "se") +
    stat_summary(
     geom = "point",
@@ -1026,7 +1026,7 @@ dev.off()
 ## Fig. 4a - copper TPP
 
 ```{r}
-toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_EDFig4bf.xlsx"))
+toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_SuppFig5bf.xlsx"))
 
 a <- plot2dTppFcHeatmap(
   df = toplot, name = "CopA",
@@ -1048,7 +1048,7 @@ dev.off()
 
 ```{r}
 
-toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_EDFig4bf.xlsx"))
+toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_SuppFig5bf.xlsx"))
 
 a <- plot2dTppFcHeatmap(
   df = toplot, name = "Zur",
@@ -1077,7 +1077,7 @@ dev.off()
 ## Fig. 4c - manganese TPP
 
 ```{r}
-toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_EDFig4bf.xlsx"))
+toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_SuppFig5bf.xlsx"))
 
 a <- plot2dTppFcHeatmap(
   df = toplot, name = "MntH",
@@ -1184,7 +1184,7 @@ ggbarplot(toplot %>%
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_EDFig.5b.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_SuppFig.6b.xlsx"))
 
 genes = c("TolC", "OqxB3", "OprC","EmrR",
           "AcrA", "AcrB_1", "MdtK","MarA",
@@ -1303,14 +1303,31 @@ dev.off()
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5c.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5c.xlsx")) %>% 
+  mutate(strain_new = case_when(strain %in% c("4_R1","4_R1 + oqxR-wt","4_R1 + pTOPO") ~ "4_R1 + wt ~ italic('oqxR')",
+                             strain %in% c("1_R4","1_R4 + emrR-wt","1_R4 + pTOPO") ~ "1_R4 + wt ~ italic('emrR')"),
+         strain_condition=interaction(strain,condition))
+
+library(stringi)
 
 stat.test <- toplot %>%
-  dplyr::group_by(strain_condition) %>%
+  dplyr::group_by(strain_new) %>%
   wilcox_test(`MIC (µg/ml)` ~ condition, p.adjust.method = "BH") %>%
   adjust_pvalue(method = "BH") %>%
   add_significance("p") %>%
-  add_xy_position(fun = "mean_sd", x = "condition",dodge = 0, group = "strain_condition") 
+  add_xy_position(fun = "mean_sd", x = "condition",dodge = 0, group = "strain_new")
+
+stat.test = stat.test %>%
+  mutate(xmin=case_when(group1 == "+ empty plasmid" & group2== "+ wt efflux\npump" ~ 2,
+                        group1 == "+ empty plasmid" & group2== "no plasmid" ~ 1,
+                        TRUE ~ 1),
+         xmax=case_when(group1 == "+ empty plasmid" & group2== "+ wt efflux\npump" ~ 3,
+                        group1 == "+ empty plasmid" & group2== "no plasmid" ~ 2,
+                        TRUE ~ 3))
+
+stat.test = stat.test %>% mutate(y.position = log2(y.position))
+
+toplot$condition <- factor(toplot$condition, levels = c("no plasmid","+ empty plasmid","+ wt efflux\npump"))
 
 
 
@@ -1331,17 +1348,18 @@ stat.test = stat.test %>%
                         group1 == "+ empty plasmid" & group2== "no plasmid" ~ 2,
                         TRUE ~ 3))
 
- ggplot(towrite, aes(x = condition, y = mean_mic, color = condition)) +
+ ggplot(toplot, aes(x = condition, y = mean_mic, color = condition)) +
   geom_bar(aes(fill = condition),stat = "identity", position = position_dodge(0.8), width = 0.7)+
-   geom_point(aes(x = condition,y=`MIC (µg/ml)`), pch=21,fill='grey90', size=2, show.legend=F,position = position_jitterdodge(dodge.width = 0.6, jitter.width = 0.9,jitter.height = 0.4)) +
+   geom_point(aes(x = condition,y=`MIC (µg/ml)`), pch=21,fill='grey90', size=2, show.legend=F,position = position_jitterdodge(dodge.width = 0.6, jitter.width = 0.9,jitter.height = 0.1)) +
    geom_errorbar(aes(ymin = mean_mic - se_mic, ymax = mean_mic + se_mic), position = position_dodge(0.8), width = 0.15) +
    scale_fill_grey() +
    scale_color_grey() +
   stat_pvalue_manual(stat.test, tip.length = 0.01,bracket.nudge.y = 0.5,
-              label = "p.adj.signif", y.position = 6, step.increase = 0.1, step.group.by = "strain_condition",
+              label = "p.adj.signif", y.position = 6, step.increase = 0.1, step.group.by = "strain_new",
               size = 3.5) +
-  scale_y_continuous(breaks = c(0,2,4,6,8,10), labels= c(0,4,16,64,256,1024)) +
-  facet_wrap2(~strain_condition,strip = strip) +
+#  scale_y_continuous(breaks = c(0,2,4,6,8,10), labels= c(0,4,16,64,256,1024)) +
+    scale_y_continuous(breaks= c(0,4,16,64,256,1024), trans = "log2") +
+  facet_wrap2(~ strain_new,strip = strip) +
   labs(color = "", y = "MIC (µg/ml)", fill="") + 
    guides(color="none") +
    theme_bw() +
@@ -1351,8 +1369,6 @@ stat.test = stat.test %>%
         legend.position = "bottom",
         strip.text = element_text(face="bold", color="white"))
 dev.off()
-
-
 ```
 
 
@@ -1436,7 +1452,7 @@ All strains are in the new file, except for 2390, which is important bc wt of MS
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5e_EDFig.5g.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5e_SuppFig.6g.xlsx")) %>%
   mutate(newspec = paste0("italic('", species, " ')~'", isolate, "'"),
          facet = factor(newspec, levels = c("italic('A. baumannii ')~'2'","italic('A. baumannii ')~'2_R1'",
                                             "italic('A. baumannii ')~'4'","italic('A. baumannii ')~'4_R1'",
@@ -1533,7 +1549,7 @@ p3 <- ggerrorplot(toplot %>% filter(row==3),
 library("latex2exp")
 
 
-cairo_pdf(paste0(plotdir,"Fig.5g_EPI.pdf"), width =7,height=6)
+cairo_pdf(paste0(plotdir,"Fig.5e_EPI.pdf"), width =7,height=6)
  
 layout <-"AAAA
           BBBB
@@ -1547,13 +1563,13 @@ dev.off()
 ```
 
 
-# EXTENDED DATA FIGURES
+# SUPPLEMENTARY FIGURES
 
-## ED Fig. 1
-### ED1a - Disk diffusion
+## Supp. Fig. 1
+### S1a - Disk diffusion
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_ED_Fig.1a.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.1a.xlsx")) %>%
   mutate(Species_italics = case_when(Species == "Salmonella spp." ~ "*Salmonella* spp.",
                                      Species == "Shigella spp." ~ "*Shigella* spp.",
                                     TRUE ~ paste0("*", Species, "* ")),
@@ -1607,7 +1623,7 @@ toplot$Species_label <- factor(toplot$Species_label, levels = rev(legend$Species
 
 toplot$number_strains_at_MIC[is.na(toplot$number_strains_at_MIC)] <- 0
 
-pdf(paste0(plotdir,"EDFig.1a_Disk_diffusion.pdf"), width=9, height=6)
+pdf(paste0(plotdir,"SuppFig.1a_Disk_diffusion.pdf"), width=9, height=6)
 ggplot(toplot,aes (x = as.factor(MIC), Species_label)) +
     geom_tile(aes(fill = number_strains_at_MIC, color="black"), colour = "black", size = 0.25) +   
     geom_text(aes(label=number_strains_at_MIC),size=3.3) +
@@ -1622,10 +1638,10 @@ dev.off()
 ```
 
 
-### ED1b - Agar dilution
+### S1b - Agar dilution
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_ED_Fig.1b.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.1b.xlsx")) %>%
   mutate(Species_italics = case_when(Species == "Salmonella spp." ~ "*Salmonella* spp.",
                                      Species == "Shigella spp." ~ "*Shigella* spp.",
                                     TRUE ~ paste0("*", Species, "* ")),
@@ -1680,7 +1696,7 @@ toplot$Species_label <- factor(toplot$Species_label, levels = rev(legend$Species
 toplot$number_strains_at_MIC[is.na(toplot$number_strains_at_MIC)] <- 0
 
 
-pdf(paste0(plotdir,"EDFig.1b_agar_microdilutions.pdf"), width=4, height=6)
+pdf(paste0(plotdir,"SuppFig.1b_agar_microdilutions.pdf"), width=4, height=6)
 ggplot(toplot,aes (x = as.factor(MIC), Species_label)) +
     geom_tile(aes(fill = number_strains_at_MIC, color="black"), colour = "black", size = 0.25) +   
     geom_text(aes(label=number_strains_at_MIC),size=3.3) +
@@ -1694,14 +1710,14 @@ dev.off()
 
 
 
-### ED1c - EUCAST and us
+### S1c - EUCAST and us
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_ED_Fig.1c.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.1c.xlsx")) %>%
   mutate(newspec = paste0("italic('", toplot$Species, "')"))
 
 
-pdf(paste0(plotdir,"EDFig.1c_eucast_broth_concordance.pdf"),width = 4, height =4)
+pdf(paste0(plotdir,"SuppFig.1c_eucast_broth_concordance.pdf"),width = 4, height =4)
 ggscatter(toplot,x="MIC_this_study",y="MIC_EUCAST", add = "reg.line", add.params = list(color = "blue", fill = "lightgray"),
           conf.int = TRUE,
    cor.coef = TRUE,
@@ -1716,15 +1732,15 @@ dev.off()
 
 
 
-### ED1d - correlation between disk and agar
+### S1d - correlation between disk and agar
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_ED_Fig.1d.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.1d.xlsx")) %>%
   mutate(newspec = paste0("italic('", Species, "')"))
 
 
-pdf(paste0(plotdir, "EDFig.1d_corr_disk_agar.pdf"), width = 5.5, height = 5.5)
+pdf(paste0(plotdir, "SuppFig.1d_corr_disk_agar.pdf"), width = 5.5, height = 5.5)
 ggscatter(toplot, "MIC_agar", "MIC_disk", color = "n_strains_agar", size = "n_strains_disk", alpha = 0.8,
           add = "reg.line",
           add.params = list(color = "blue", fill = "lightgray"),
@@ -1748,14 +1764,14 @@ dev.off()
 ```
 
 
-### ED1e - correlation broth and agar
+### S1e - correlation broth and agar
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_ED_Fig.1e.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.1e.xlsx")) %>%
   mutate(newspec = paste0("italic('", Species, "')"))
 
 
-pdf(paste0(plotdir, "EDFig.1e_corr_broth_agar.pdf"), width = 5.5, height = 5.5)
+pdf(paste0(plotdir, "SuppFig.1e_corr_broth_agar.pdf"), width = 5.5, height = 5.5)
 ggscatter(toplot, "MIC_agar", "MIC_broth", color = "n_strains_agar", size = "n_strains_broth", alpha = 0.8,
            add = "reg.line",
   add.params = list(color = "blue", fill = "lightgray"),
@@ -1780,15 +1796,15 @@ dev.off()
 ```
 
 
-### ED1f - correlation between disk and broth
+### S1f - correlation between disk and broth
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_ED_Fig.1f.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.1f.xlsx")) %>%
   mutate(newspec = paste0("italic('", Species, "')"))
 
 
-pdf(paste0(plotdir, "EDFig,1f_corr_disk_broth.pdf"), width = 5.5, height = 5.5)
+pdf(paste0(plotdir, "SuppFig.1f_corr_disk_broth.pdf"), width = 5.5, height = 5.5)
 ggscatter(toplot %>% drop_na(), "MIC_broth", "MIC_disk", color = "n_strains_broth", size = "n_strains_disk", alpha = 0.8,
            add = "reg.line",  
   add.params = list(color = "blue", fill = "lightgray"), 
@@ -1813,48 +1829,15 @@ dev.off()
 ```
 
 
-## ED Fig. 2
+## Supp. Fig. 2
 
 
-### ED Fig. 2a - Abau killing w/ control
-
+### S2a - E. coli killing
 ```{r}
-
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.1e_EDFig.2b.xlsx"))
-
-
-pdf(paste0(plotdir,"EDFig.2b_Abau_killing_control.pdf"), width = 5.8, height=5)
-
-my_palette = brewer.pal("Oranges",n = 9)[3:9]
-
-toplot = toplot %>% clean_names()
-
-ggplot(toplot, aes(x=as.factor(time_h),y=mean, group =nitroxoline_concentration_mg_ml, color = nitroxoline_concentration_mg_ml)) + 
-  geom_point(size=0.8) +
-  scale_y_log10(labels= trans_format(log10, math_format(10^.x)), 
-                breaks =trans_breaks(log10, function(x) 10^x, 10)) +
-  scale_x_discrete(breaks=c(0,2,4,8,24,30)) +
-  scale_colour_manual(values=my_palette) +
-  geom_line(data=toplot[!is.na(toplot$mean),]) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se), width = 1,position=position_dodge(0.1)) +
-  labs(color = "Nitroxoline\n(µg/ml)", x="Time (h)", y= "CFU/ml", title=expression(italic("A. baumannii"))) +
-  theme_bw() +
-  theme(axis.text=element_text(size = 15),
-        axis.title = element_text(size = 16),
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 13),
-        plot.title =element_text(size = 15, hjust=0.5))
-
-dev.off()
-
-```
-
-### ED Fig. 2b - E. coli killing
-```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.2a.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.2a.xlsx"))
 
 
-pdf(paste0(plotdir,"EDFig.2b_Ecoli_killing.pdf"), width = 5.8, height=5)
+pdf(paste0(plotdir,"SuppFig.2a_Ecoli_killing.pdf"), width = 5.8, height=5)
 
 toplot$`Nitroxoline concentration (µg/ml)` <- factor(toplot$`Nitroxoline concentration (µg/ml)`, levels=c('0', '2', '4', '8', '16', '32','64'))
 
@@ -1881,11 +1864,44 @@ dev.off()
 ```
 
 
-## ED Fig. 3
-### ED3a - all checkerboards
+### S2b - Abau killing w/ control
 
 ```{r}
-allCBs = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2a_EDFig.3a.xlsx")) %>%
+
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.1e_SuppFig.2b.xlsx"))
+
+
+pdf(paste0(plotdir,"SuppFig.2b_Abau_killing_control.pdf"), width = 5.8, height=5)
+
+my_palette = brewer.pal("Oranges",n = 9)[3:9]
+
+toplot = toplot %>% clean_names()
+
+ggplot(toplot, aes(x=as.factor(time_h),y=mean, group =nitroxoline_concentration_mg_ml, color = nitroxoline_concentration_mg_ml)) + 
+  geom_point(size=0.8) +
+  scale_y_log10(labels= trans_format(log10, math_format(10^.x)), 
+                breaks =trans_breaks(log10, function(x) 10^x, 10)) +
+  scale_x_discrete(breaks=c(0,2,4,8,24,30)) +
+  scale_colour_manual(values=my_palette) +
+  geom_line(data=toplot[!is.na(toplot$mean),]) +
+  geom_errorbar(aes(ymin = mean-se, ymax = mean+se), width = 1,position=position_dodge(0.1)) +
+  labs(color = "Nitroxoline\n(µg/ml)", x="Time (h)", y= "CFU/ml", title=expression(italic("A. baumannii"))) +
+  theme_bw() +
+  theme(axis.text=element_text(size = 15),
+        axis.title = element_text(size = 16),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13),
+        plot.title =element_text(size = 15, hjust=0.5))
+
+dev.off()
+
+```
+
+## Supp. Fig. 3
+### S3a - all checkerboards
+
+```{r}
+allCBs = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2a_SuppFig.3a.xlsx")) %>%
   group_by(horizontal_concentration, nitroxoline_concentration, horizontal_drug) %>%
   mutate(median_norm_fitness = median(norm_fitness))
 
@@ -1939,7 +1955,7 @@ scale_fill_gradientn(colors = c("#ffffff", "#ffffff", "grey"),
         panel.spacing = unit(2, "lines"),
         legend.position="none")
 
-pdf(paste0(plotdir, "EDFig.3a_CB_heatmaps_hits.pdf"),  width=10, height=15)
+pdf(paste0(plotdir, "SuppFig.3a_CB_heatmaps_hits.pdf"),  width=10, height=15)
 layout <-"BBBBB
           AAAAA
           AAAAA
@@ -1961,16 +1977,16 @@ dev.off()
 ```
 
 
-##ED Fig.4 
+##Supp. Fig. 5 
 
-### ED Fig. 4a - GO TPP
+### S5a - GO TPP
 
 cutoffs to define hits (foreground for enrichment):
 - TPP hits at FDR < 0.01 and efsize (as in volcano plot in fig. 3a) > |1|
 - enrichment cutoff as padj (Fisher's test, BH correction) < 0.05
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_ED_Fig.4a.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.5a.xlsx")) %>%
          dplyr::filter(p_adj <= 0.05 & source == "go_abund_up") %>%
   dplyr::mutate(GO.term = with(.,reorder(GO.term,fold.enrichment)))
 
@@ -2037,7 +2053,7 @@ p4 = ggplot(toplot,aes(y = GO.term, x = fold.enrichment)) +
 
 
 
-pdf(paste0(plotdir, "EDFig.4a_GObarplots.pdf"), width = 12, height = 12)
+pdf(paste0(plotdir, "SuppFig.5a_GObarplots.pdf"), width = 12, height = 12)
 design <- "
 111333
 111333
@@ -2060,10 +2076,10 @@ dev.off()
 
 
 
-### ED Fig. 4b - Lpt thermal profiles
+### S5b - Lpt thermal profiles
 
 ```{r}
-toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_EDFig4bf.xlsx")) %>%
+toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_SuppFig5bf.xlsx")) %>%
   filter(protein %in% c("LptA","LptB","LptC","LptD","LptE", "LptF", "LptG")) %>%
   dplyr::mutate(temperature = factor(temperature, levels = rev(sort(unique(temperature)))),
                 nitroxoline_conc = as.factor(nitroxoline_conc))
@@ -2082,7 +2098,7 @@ p<- ggplot(toplot, aes(as.factor(nitroxoline_conc), temperature)) +
         strip.text =  element_text(size = 12))
 
 
-pdf(paste0(plotdir,"EDFig.4b_thermal_profile_envstress.pdf"), width = 7, height = 3.8)
+pdf(paste0(plotdir,"SuppFig.5b_thermal_profile_envstress.pdf"), width = 7, height = 3.8)
 
 shift_legend2 <- function(p) {
   # ...
@@ -2108,11 +2124,11 @@ dev.off()
 ```
 
 
-### ED Fig. 4c - GO enrichment hits from chemical genetics
+### S5c - GO enrichment hits from chemical genetics
 
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.4c.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.5c.xlsx")) %>%
  mutate(colour = case_when(GO.tree == "CC" ~ "dodgerblue3",
                                           GO.tree == "MF" ~ "tomato",
                                           TRUE ~ "darkgreen"),
@@ -2163,7 +2179,7 @@ design <- "
 11##
 "
 
-pdf(paste0(plotdir, "EDFig.4c_GO_Keio.pdf"), width = 12, height = 6)
+pdf(paste0(plotdir, "SuppFig.5c_GO_Keio.pdf"), width = 12, height = 6)
 p + p1 +  plot_layout(design = design)
 
 dev.off()
@@ -2172,11 +2188,11 @@ dev.off()
 
 
 
-### ED Fig. 4d - LptD synergy
+### S5d - LptD synergy
 
 New version - 240329 using data from 220525
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.4d.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.5d.xlsx")) %>%
   mutate(concentration= as.factor(`Nitroxoline conc (µg/ml)`))
 
 colours = data.frame("strain" = unique(toplot$strain), "values" = rep("darkgrey", length(toplot$strain))) %>%
@@ -2188,7 +2204,7 @@ jColors <- as.character(colours$values)
 names(jColors) <- colours$strain
 
 
-pdf(paste0(plotdir, "EDFig.4d_dose_response_lptD.pdf"), width = 3.2, height = 3.5)
+pdf(paste0(plotdir, "SuppFig.5d_dose_response_lptD.pdf"), width = 3.2, height = 3.5)
 
 ggplot(toplot, aes(x = concentration, y = mean_OD,color=strain, group = strain)) +
   geom_line() +
@@ -2206,10 +2222,10 @@ dev.off()
 
 
 
-### ED Fig. 4f - iron
+### S5f - iron
 
 ```{r}
-toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_EDFig4bf.xlsx"))
+toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_SuppFig5bf.xlsx"))
 
 a <- plot2dTppFcHeatmap(
   df = toplot, name = "Fur",
@@ -2228,7 +2244,7 @@ e <- plot2dTppFcHeatmap(
   drug_name = "Nitroxoline")
 
 
-pdf(paste0(plotdir, "EDFig.4f_thermal_profile_iron.pdf"), width = 5.8, height = 4)
+pdf(paste0(plotdir, "SuppFig.5f_thermal_profile_iron.pdf"), width = 5.8, height = 4)
 
 cowplot::plot_grid(a, b,c,d,e, nrow = 2)
 
@@ -2236,12 +2252,12 @@ dev.off()
 
 ```
 
-## ED Fig. 5
+## Supp. Fig. 6
 
-### ED Fig. 5a - volcano R strains
+### S6a - volcano R strains
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.5a.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.6a.xlsx"))
 
 colours = data.frame("cross_species_conservation" = c("conserved across species", "conserved within species","strain-specific", "no orthology group annotated"),
                      "values" = c("black", "#67a9cf","#ef8a62", "darkgrey"))
@@ -2251,7 +2267,7 @@ names(jColors) <- colours$cross_species_conservation
 
 toplot = toplot %>% filter(Condition_treatment=="nodrug")
 
-pdf(paste0(plotdir, "EDFig.5a_resistant_strains_volcano.pdf"), width = 8, height = 7.6)
+pdf(paste0(plotdir, "SuppFig.6a_resistant_strains_volcano.pdf"), width = 8, height = 7.6)
 
 
 tolabel = c("BepF", "NfsA", "MarA", "GabT","FrdB","PlaP","OmpC","GarR","GarD", "OmpW", "MprA", "LamB", "TolC", "OprC","EmrR",
@@ -2282,7 +2298,7 @@ dev.off()
 ```
 
 
-### ED Fig. 5b - clustered MS - only significant genes, resistant strains
+### S6b - clustered MS - only significant genes, resistant strains
 
 Source data is same as Fig. 5b (that is a small subset)
 ```{r}
@@ -2292,7 +2308,7 @@ strains = c("A. baumannii 2_R1","A. baumannii 4_R1",
             "K. pneumoniae 10_R1","K. pneumoniae 2_R1","K. pneumoniae 2_R2","K. pneumoniae 3_R1", "K. pneumoniae 5_R1", "K. pneumoniae 9_R1", "K. pneumoniae 9_R2")
 
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_EDFig.5b.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_SuppFig.6b.xlsx")) %>%
   filter(hit==1 & og != "" & Strain_treatment %in% strains)
 
 mymat = toplot %>% 
@@ -2340,7 +2356,7 @@ ha = HeatmapAnnotation(
 
 
 
-pdf(paste0(plotdir,"EDFig.5b_clustered_proteomics.pdf"), width=6, height=30)
+pdf(paste0(plotdir,"SuppFig.6b_clustered_proteomics.pdf"), width=6, height=30)
 rownames(mat_data) = NULL
 
 Heatmap(mat_data,
@@ -2356,7 +2372,7 @@ dev.off()
 ```
 
 
-### ED Fig. 5c - EmrR mutplot
+### S6c - EmrR mutplot
 ```{r}
 
 # get domain annotations
@@ -2376,7 +2392,7 @@ plot_start<-0 #starts 0
 plot_end<-max(features_total_plot$end)   
 
 # read data with MIC and isolate type info
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.5c.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.6c.xlsx"))
 
 colours = data.frame("Isolate_Type" = c("clinical isolate","experimentally evolved","unidentified"),
                      "values" = c("#D55E00", "black","darkgrey"))
@@ -2384,7 +2400,7 @@ jColors <- as.character(colours$values)
 names(jColors) <- colours$Isolate_Type
     
 
-pdf(paste0(plotdir,"EDFig.5c_EmrR_mutplot.pdf"), width=4.5, height=3.5)
+pdf(paste0(plotdir,"SuppFig.6c_EmrR_mutplot.pdf"), width=4.5, height=3.5)
 
 ggplot(toplot,aes(location_aa_number,`MIC (µg/ml)`,color=Isolate_type,label=Protein_Change))+
   geom_segment(aes(y=0,xend=location_aa_number,yend=`MIC (µg/ml)`)) +
@@ -2421,7 +2437,7 @@ ggplot(toplot,aes(location_aa_number,`MIC (µg/ml)`,color=Isolate_type,label=Pro
 ```
 
 
-### ED Fig. 5e - AdeL mutplot
+### S6e - AdeL mutplot
 
 ```{r}
 # get domain annotations
@@ -2441,7 +2457,7 @@ plot_start<-0 #starts 0
 plot_end<-max(features_total_plot$end)   
 
 # read data with MIC and isolate type info
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.5e.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.6e.xlsx"))
 
 colours = data.frame("Isolate_Type" = c("clinical isolate","experimentally evolved","unidentified"),
                      "values" = c("#D55E00", "black","darkgrey"))
@@ -2486,7 +2502,7 @@ dev.off()
 ```
 
 
-### ED Fig. 5f - AcrR mutplot
+### S6f - AcrR mutplot
 
 ```{r}
 
@@ -2507,7 +2523,7 @@ plot_start<-0 #starts 0
 plot_end<-max(features_total_plot$end)   
 
 # read data with MIC and isolate type info
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig.5f.xlsx"))
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.6f.xlsx"))
 
 colours = data.frame("Isolate_Type" = c("clinical isolate","experimentally evolved","unidentified"),
                      "values" = c("#D55E00", "black","darkgrey"))
@@ -2515,7 +2531,7 @@ jColors <- as.character(colours$values)
 names(jColors) <- colours$Isolate_Type
 
 
-pdf(paste0(plotdir,"EDFig.5f_acrR_mutplot.pdf"),width=4.5, height=4)
+pdf(paste0(plotdir,"SuppFig.6f_acrR_mutplot.pdf"),width=4.5, height=4)
 
 ggplot(toplot,aes(location_aa_number,`MIC (µg/ml)`,color=Isolate_type,label=Protein_Change))+
   geom_segment(aes(y=0,xend=location_aa_number,yend=`MIC (µg/ml)`)) +
@@ -2555,12 +2571,12 @@ dev.off()
 
 
 
-### ED 5g - EPI
+### S6g - EPI
 
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5e_EDFig.5g.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5e_SuppFig.6g.xlsx")) %>%
   mutate(newspec = paste0("italic('", species, " ')~'", isolate, "'"), 
          facet = factor(newspec, levels = c("italic('A. baumannii ')~'1'","italic('A. baumannii ')~'1_R1'",
                                             "italic('A. baumannii ')~'5'","italic('A. baumannii ')~'5_R1'",
@@ -2636,7 +2652,7 @@ p2 <- ggerrorplot(toplot %>% filter(row==2), x = "condition", y = "`MIC(µg/ml)`
 library("latex2exp")
 
 
-cairo_pdf(paste0(plotdir,"EDFig.5g_effluxpump.pdf"), width =7,height=4)
+cairo_pdf(paste0(plotdir,"SuppFig.6g_effluxpump.pdf"), width =7,height=4)
  
 layout <-"AAAA
           BBDD
@@ -2648,286 +2664,11 @@ dev.off()
 
 ```
 
-
-
-
-# Supplementary File
-
-### Fig. 1 - MTT toxicity
-
-```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.S1.xlsx"))
-
-
-toplot$condition = factor(toplot$condition, levels = c("0.5", "1", "2","5","10","20","50","0.1%\nTriton", "RPMI"), ordered = TRUE)
-
-
-pdf(paste0(plotdir,"Fig.S1_MTT_assay.pdf"),width =4,height=2)
-ggplot(toplot, aes(x=condition,y=mean_viability, fill=drug_ctrl)) +
-  geom_bar(stat="identity") +
-  geom_hline(yintercept=100, linetype="dashed", linewidth=0.3) +
-  scale_y_continuous(breaks=c(0,20,40,60,80,100)) +
-  scale_fill_manual(values=c("#DD4444", "#555599", "#66BBBB"), labels=c("nitroxoline","rpmi","triton")) +
-  labs(x="",y="Cell Viability (%)") +
-  geom_errorbar(aes(ymin=lowersd_viab,ymax=uppersd_viab), width=0.1) +
-  theme_bw() +
-  theme(legend.position="none")
-dev.off()
-
-
-```
-
-
-## Fig. 2 - checkerboard replicates
+## Supp. Fig. 7 - GO resistant strains
 
 ```{r}
 
-allCBs = readxl::read_xlsx(paste0(sourcedatadir,"source_2a_EDFig.3a.xlsx"))
-
-
-antags= c("Aztreonam","Mecillinam","Temocillin", "Cefepime","Imipenem", "Meropenem","Ertapenem","Thiolutin", "Amikacin","Gentamicin", "Tobramycin","Trimethoprim","Tetracycline")
-synerg = c("Vancomycin", "Colistin", "Azithromycin",  "Novobiocin", "Rifampicin")
-neutrals = setdiff(unique(allCBs$horizontal_drug), c(antags,synerg))
-
-
-p <- ggplot(allCBs %>% filter(horizontal_drug %in% antags), aes (x = factor(horizontal_concentration), factor(nitroxoline_concentration))) +
-    geom_tile(aes(fill = norm_fitness), colour = "white", size = 0.25) +   
-scale_fill_gradientn(colors = c("#ffffff", "#ffffff", "#d9a520"),
-                     values = scales::rescale(c(0,0.1, max(allCBs$norm_fitness)))) +
-    theme_classic() + 
-	facet_wrap(horizontal_drug ~ replicate, scales = "free", ncol = 6) +
-  labs(x ="Combined drug (µg/ml)", y = "Nitroxoline (µg/ml)", fill="Normalised\nfitness") +
-     theme(strip.placement = "outside",
-        strip.background = element_blank(), 
-        axis.text.x = element_text(angle = 60, hjust = 0.5,vjust = 0.5),
-        axis.text.y = element_text(size = 10),
-        axis.title.y = element_blank(),
-        panel.spacing = unit(2, "lines"))
-
-p1 <- ggplot(allCBs %>% filter(horizontal_drug %in% synerg), aes (x = factor(horizontal_concentration), factor(nitroxoline_concentration))) +
-    geom_tile(aes(fill = norm_fitness), colour = "white", size = 0.25) +   
-scale_fill_gradientn(colors = c("#ffffff", "#ffffff", "turquoise4"),
-                     values = scales::rescale(c(0,0.1, max(allCBs$norm_fitness)))) +
-    theme_classic() + 
-	facet_wrap(horizontal_drug ~ replicate, scales = "free", ncol = 6) +
-  labs(x ="Combined drug (µg/ml)", y = "Nitroxoline (µg/ml)", fill="Normalised\nfitness") +
-     theme(strip.placement = "outside",
-        strip.text = element_text(size= 10),
-        strip.background = element_blank(), 
-        axis.text.x = element_text(angle = 60, hjust = 0.5,vjust = 0.5),
-       axis.text.y = element_text(size = 10),
-        axis.title.y = element_blank(),
-        panel.spacing = unit(2, "lines"),
-        legend.position = "none")
-
-p2 <- ggplot(allCBs %>% filter(horizontal_drug %in% neutrals), aes (x = factor(horizontal_concentration), factor(nitroxoline_concentration))) +
-    geom_tile(aes(fill = norm_fitness), colour = "white", size = 0.25) +   
-scale_fill_gradientn(colors = c("#ffffff", "#ffffff", "grey60"),
-                     values = scales::rescale(c(0,0.1, max(allCBs$norm_fitness)))) +
-    theme_classic() + 
-	facet_wrap(horizontal_drug ~ replicate, scales = "free", ncol = 6) +
-  labs(x ="Combined drug (µg/ml)", y = "Nitroxoline (µg/ml)", fill="Normalised\nfitness") +
-     theme(strip.placement = "outside",
-        strip.background = element_blank(), 
-        axis.text.x = element_text(angle = 60, hjust = 0.5,vjust = 0.5),
-        axis.text.y = element_text(size = 10),
-        panel.spacing = unit(2, "lines"),
-        legend.position="right")
-
-pdf(paste0(plotdir, "SuppFig.2_CB_heatmaps_antag_repssep.pdf"),  width=10.5, height=11)
-shift_legend2 <- function(p) {
-  # to grob
-  gp <- ggplotGrob(p)
-  facet.panels <- grep("^panel", gp[["layout"]][["name"]])
-  empty.facet.panels <- sapply(facet.panels, function(i) "zeroGrob" %in% class(gp[["grobs"]][[i]]))
-  empty.facet.panels <- facet.panels[empty.facet.panels]
-
-  # establish name of empty panels
-  empty.facet.panels <- gp[["layout"]][empty.facet.panels, ]
-  names <- empty.facet.panels$name
-
-  reposition_legend(p, 'center', panel=names, plot =F)
-}
-
-grid::grid.draw(shift_legend2(p))
-dev.off()
-
-pdf(paste0(plotdir, "SuppFig.2_CB_heatmaps_synergies_repssep.pdf"),  width=10.5, height=4.4)
-
-p1
-
-dev.off()
-
-
-pdf(paste0(plotdir, "SuppFig.2_CB_heatmaps_neutrals_repssep.pdf"),  width=10.5, height=11)
-grid::grid.draw(shift_legend2(p2))
-dev.off()
-
-
-
-```
-
-
-
-
-## Fig. 4 - full growth curves Kpn resensitization
-```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.S4.xlsx"))
-
-
-
-toplot$facet = factor(toplot$strain, levels = c("E. coli J53","E. coli J53 pTOPO", "E. coli J53 pTOPO_mcr-1","E. coli J53 pKP2442_mcr-1",
-                                                "E. coli MG1655","E. coli MG1655 pmrA (G53E)","E. coli MG1655 pmrB (V88E)",
-                                                "E. coli BW25113","E. coli BW25113 pGDP1_mcr1",
-                                                "K. pneumoniae CT-S", "K. pneumoniae CT-R3 pmrB (P95L)", "K. pneumoniae LS107", "K. pneumoniae LS53 mgrB (IS1R)","K. pneumoniae pKP2442_mcr-1",
-                                                "K. pneumoniae PRZ" , "K. pneumoniae PRZ pTOPO","K. pneumoniae PRZ pTOPO_mcr-1", "K. pneumoniae PRZ pKP2442_mcr-1"))
-
-toplot = toplot %>%
-  mutate(row= case_when(strain %in% c("E. coli BW25113","E. coli BW25113 pGDP1_mcr1") ~ 1,
-                        strain %in% c("E. coli MG1655","E. coli MG1655 pmrA (G53E)","E. coli MG1655 pmrB (V88E)") ~ 2,
-                        strain %in% c("E. coli J53","E. coli J53 pTOPO", "E. coli J53 pTOPO_mcr-1", "E. coli J53 pKP2442_mcr-1") ~ 3,
-                        strain %in% c("K. pneumoniae PRZ" , "K. pneumoniae PRZ pTOPO_mcr-1","K. pneumoniae PRZ pKP2442_mcr-1") ~ 5,
-                        strain %in% c("K. pneumoniae CT-S", "K. pneumoniae CT-R3 pmrB (P95L)") ~ 6,
-                        strain %in% c("K. pneumoniae LS107", "K. pneumoniae LS53 mgrB (IS1R)") ~ 7,
-                        strain %in% c("K. pneumoniae pKP2442_mcr-1") ~ 8,
-                        strain %in% c("K. pneumoniae PRZ pTOPO") ~ 9),
-         resist = case_when(strain %in% c("E. coli BW25113","E. coli J53","E. coli MG1655",
-                                          "K. pneumoniae CT-S","K. pneumoniae LS107","K. pneumoniae PRZ") ~ "sensitive",
-                            TRUE ~ "resistant"))
-
-
-fixtps = function(x) {
-  x$condConc = interaction(x$condition, x$Concentration)
-  x$Time_points = ave(x$Time, x$condConc, FUN = seq_along)
-  return(x)
-}
-toplot = fixtps(toplot)
-
-
-toplot = toplot %>%
-  #decided not to include empty vector control in main fig, only supp 
-  mutate(strain = gsub(strain, pattern  =" ",replacement = "~"),
-        strain = gsub(strain, pattern  ="E.~coli",replacement = "italic('E. coli')"),
-        strain = gsub(strain, pattern  ="K.~pneumoniae",replacement = "italic('K. pneumoniae')")) 
-
-
-toplot = toplot %>%
-  mutate(strain = case_when(strain =="italic('E. coli')~BW25113~pGDP1_mcr1" ~ "~ atop(paste(italic('E. coli'), ' BW25113'),paste('pGDP1_', italic('mcr-1')))",  
-    strain =="italic('E. coli')~J53~pKP2442_mcr-1" ~ "~ atop(paste(italic('E. coli'), ' J53'),paste('pKP2442_', italic('mcr-1')))",
-                            strain =="italic('E. coli')~MG1655~pmrA~(G53E)" ~ "~ atop(paste(italic('E. coli'), ' MG1655'),paste(italic('pmrA'),'(G53E)'))",
-                            strain == "italic('E. coli')~MG1655~pmrB~(V88E)" ~ "~ atop(paste(italic('E. coli'), ' MG1655'),paste(italic('pmrB'),'(V88E)'))",
-    strain == "italic('E. coli')~J53~pTOPO_mcr-1" ~ "~ atop(paste(italic('E. coli'), ' J53'),paste('pTOPO_', italic('mcr-1')))",
-    strain == "italic('E. coli')~J53~pKP2442_mcr-1" ~ "~ atop(paste(italic('E. coli'), ' J53'),paste('pKP2442_', italic('mcr-1')))",
-    TRUE ~ strain))
-
-toplot = toplot %>%
-  dplyr::group_by(strain,Time,nitroxoline, Concentration, source) %>%
-  dplyr::mutate(mean = mean(OD_no1st),
-                SE = sqrt(var(OD_no1st)/length(OD_no1st)))
-
-
-
-pdf(paste0(plotdir, "Fig.S4_colistin_resensitiz_growth_curves.pdf"), width=12, height=15)
-
-ggplot(toplot%>%
-         mutate(strainrep=interaction(strain,Replicate,nitroxoline,source)),
-       aes(x = Time, y = mean,color = factor(nitroxoline), group=strainrep)) +
-        geom_line(aes(group=strainrep)) +
-  geom_ribbon(aes(ymin = mean - SE, ymax = mean + SE, fill = factor(nitroxoline)),alpha = 0.5) +
-  scale_color_manual(labels = c("+ NX 0.75 µg/ml", "- NX"), values = c("turquoise4","darkgrey")) +
-  scale_fill_manual(labels = c("+ NX 0.75 µg/ml", "- NX"), values = c("turquoise4","darkgrey")) +
-      facet_grid(row + strain ~ Concentration, labeller = label_parsed) +
-      labs(x = "Time (h)", y = expression("OD"["595 nm"]),color = "") +
-  theme_bw() +
-  guides(fill="none")+
-  theme(legend.position="right")
-
-dev.off()
-
-
-```
-
-## Fig. 5 - full growth curves LptD
-
-
-```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.S5.xlsx"))
-
-pdf(paste0(plotdir,"FigS5_fullgrowthcurves_lptD.pdf"),width = 10, height=2)
-ggplot(toplot%>%
-         mutate(strainrep=interaction(strain,Replicate)),
-       aes(x = Time_h, y = mean,color = factor(strain), group=strain)) +
-        geom_line(aes(group=strain)) +
-  geom_ribbon(aes(ymin = mean - SE, ymax = mean + SE, fill = factor(strain)),alpha = 0.5) +
-  scale_color_manual(labels = c( "E. coli BW25113","E. coli lptD4213"), values = c("darkgrey", "turquoise4")) +
-  scale_fill_manual(labels = c( "E. coli BW25113","E. coli lptD4213"), values = c("darkgrey", "turquoise4")) +
-      facet_grid( ~ Concentration) +
-      labs(x = "Time (h)", y = expression("OD"["595 nm"]),color = "",fill="") +
-  theme_bw() +
-  guides(color="none")+
-  theme(legend.position="right")
-
-dev.off()
-
-```
-
-
-## Fig. 6 - resp chain thermal profiles
-
-```{r}
-toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_EDFig4bf.xlsx"))
-
-a <- plot2dTppFcHeatmap(
-  df = toplot, name = "NuoB",
-  drug_name = "Nitroxoline")
-b <- plot2dTppFcHeatmap(
-  df = toplot, name = "NuoF",
-  drug_name = "Nitroxoline")
-c <- plot2dTppFcHeatmap(
-  df = toplot, name = "NuoI",
-  drug_name = "Nitroxoline")
-d <- plot2dTppFcHeatmap(
-  df = toplot, name = "NarH",
-  drug_name = "Nitroxoline")
-e <- plot2dTppFcHeatmap(
-  df = toplot, name = "NarG",
-  drug_name = "Nitroxoline")
-f <- plot2dTppFcHeatmap(
-  df = toplot, name = "SdhA",
-  drug_name = "Nitroxoline")
-g <- plot2dTppFcHeatmap(
-  df = toplot, name = "SdhB",
-  drug_name = "Nitroxoline")
-h <- plot2dTppFcHeatmap(
-  df = toplot, name = "FdnG",
-  drug_name = "Nitroxoline")
-i <- plot2dTppFcHeatmap(
-  df = toplot, name = "FdnH",
-  drug_name = "Nitroxoline")
-j <- plot2dTppFcHeatmap(
-  df = toplot, name = "FdoG",
-  drug_name = "Nitroxoline")
-k <- plot2dTppFcHeatmap(
-  df = toplot, name = "FdoH",
-  drug_name = "Nitroxoline")
-
-
-
-pdf(paste0(plotdir, "Fig.S6_thermal_profile_respiratory_chain.pdf"), width = 14, height = 7)
-
-cowplot::plot_grid(a, b,c,d,e,f,g,h,i,j,k, ncol = 5)
-
-dev.off()
-
-
-```
-
-
-## Fig. 9 - GO resistant strains
-
-```{r}
-
-final = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.S9.xslx"))
+final = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.7.xslx"))
 
 
 toplot = filter(final, source == "abau_upreg") %>%
@@ -3008,7 +2749,7 @@ p5 = ggplot(toplot,aes(y = GO.term, x = fold_enrich)) +
         legend.position="right")
 
 
-pdf(paste0(plotdir, "Fig.S9_GO_enrich_proteomics_ResistantStrains.pdf"), width = 12, height = 15)
+pdf(paste0(plotdir, "SuppFig.7_GO_enrich_proteomics_ResistantStrains.pdf"), width = 12, height = 15)
 design <- "
 4455#
 4455#
@@ -3033,12 +2774,11 @@ dev.off()
 
 ```
 
-
-## Fig. 10 - GO sensitive strains
+## Supp. Fig. 8 - GO sensitive strains
 
 ```{r}
 
-final = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.S10.xslx"))
+final = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.8.xslx"))
   
 
 toplot = filter(final, source == "abau_upreg") %>%
@@ -3089,7 +2829,7 @@ p3 = ggplot(toplot,aes(y = GO.term, x = fold_enrich)) +
   guides(size = guide_legend(keywidth = 0.2))
 
 
-pdf(paste0(plotdir, "Fig.S10_GO_enrich_SensitiveStrains.pdf"), width = 12, height = 17)
+pdf(paste0(plotdir, "SuppFig.8_GO_enrich_SensitiveStrains.pdf"), width = 12, height = 17)
 
 design <- "
 12
@@ -3108,12 +2848,282 @@ dev.off()
 
 ```
 
+## Supp. Fig. 9 - MTT toxicity
 
-## Fig. 9a - volcano sensitive strains proteomics
+```{r}
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.9.xlsx"))
+
+
+toplot$condition = factor(toplot$condition, levels = c("0.5", "1", "2","5","10","20","50","0.1%\nTriton", "RPMI"), ordered = TRUE)
+
+
+pdf(paste0(plotdir,"SuppFig.9_MTT_assay.pdf"),width =4,height=2)
+ggplot(toplot, aes(x=condition,y=mean_viability, fill=drug_ctrl)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept=100, linetype="dashed", linewidth=0.3) +
+  scale_y_continuous(breaks=c(0,20,40,60,80,100)) +
+  scale_fill_manual(values=c("#DD4444", "#555599", "#66BBBB"), labels=c("nitroxoline","rpmi","triton")) +
+  labs(x="",y="Cell Viability (%)") +
+  geom_errorbar(aes(ymin=lowersd_viab,ymax=uppersd_viab), width=0.1) +
+  theme_bw() +
+  theme(legend.position="none")
+dev.off()
+
+
+```
+
+# ADDITIONAL FIGURES (only in git)
+
+## Fig. 1 - checkerboard replicates
 
 ```{r}
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig5a.xlsx"))
+allCBs = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.2a_SuppFig.3a.xlsx"))
+
+
+antags= c("Aztreonam","Mecillinam","Temocillin", "Cefepime","Imipenem", "Meropenem","Ertapenem","Thiolutin", "Amikacin","Gentamicin", "Tobramycin","Trimethoprim","Tetracycline")
+synerg = c("Vancomycin", "Colistin", "Azithromycin",  "Novobiocin", "Rifampicin")
+neutrals = setdiff(unique(allCBs$horizontal_drug), c(antags,synerg))
+
+
+p <- ggplot(allCBs %>% filter(horizontal_drug %in% antags), aes (x = factor(horizontal_concentration), factor(nitroxoline_concentration))) +
+    geom_tile(aes(fill = norm_fitness), colour = "white", size = 0.25) +   
+scale_fill_gradientn(colors = c("#ffffff", "#ffffff", "#d9a520"),
+                     values = scales::rescale(c(0,0.1, max(allCBs$norm_fitness)))) +
+    theme_classic() + 
+	facet_wrap(horizontal_drug ~ replicate, scales = "free", ncol = 6) +
+  labs(x ="Combined drug (µg/ml)", y = "Nitroxoline (µg/ml)", fill="Normalised\nfitness") +
+     theme(strip.placement = "outside",
+        strip.background = element_blank(), 
+        axis.text.x = element_text(angle = 60, hjust = 0.5,vjust = 0.5),
+        axis.text.y = element_text(size = 10),
+        axis.title.y = element_blank(),
+        panel.spacing = unit(2, "lines"))
+
+p1 <- ggplot(allCBs %>% filter(horizontal_drug %in% synerg), aes (x = factor(horizontal_concentration), factor(nitroxoline_concentration))) +
+    geom_tile(aes(fill = norm_fitness), colour = "white", size = 0.25) +   
+scale_fill_gradientn(colors = c("#ffffff", "#ffffff", "turquoise4"),
+                     values = scales::rescale(c(0,0.1, max(allCBs$norm_fitness)))) +
+    theme_classic() + 
+	facet_wrap(horizontal_drug ~ replicate, scales = "free", ncol = 6) +
+  labs(x ="Combined drug (µg/ml)", y = "Nitroxoline (µg/ml)", fill="Normalised\nfitness") +
+     theme(strip.placement = "outside",
+        strip.text = element_text(size= 10),
+        strip.background = element_blank(), 
+        axis.text.x = element_text(angle = 60, hjust = 0.5,vjust = 0.5),
+       axis.text.y = element_text(size = 10),
+        axis.title.y = element_blank(),
+        panel.spacing = unit(2, "lines"),
+        legend.position = "none")
+
+p2 <- ggplot(allCBs %>% filter(horizontal_drug %in% neutrals), aes (x = factor(horizontal_concentration), factor(nitroxoline_concentration))) +
+    geom_tile(aes(fill = norm_fitness), colour = "white", size = 0.25) +   
+scale_fill_gradientn(colors = c("#ffffff", "#ffffff", "grey60"),
+                     values = scales::rescale(c(0,0.1, max(allCBs$norm_fitness)))) +
+    theme_classic() + 
+	facet_wrap(horizontal_drug ~ replicate, scales = "free", ncol = 6) +
+  labs(x ="Combined drug (µg/ml)", y = "Nitroxoline (µg/ml)", fill="Normalised\nfitness") +
+     theme(strip.placement = "outside",
+        strip.background = element_blank(), 
+        axis.text.x = element_text(angle = 60, hjust = 0.5,vjust = 0.5),
+        axis.text.y = element_text(size = 10),
+        panel.spacing = unit(2, "lines"),
+        legend.position="right")
+
+pdf(paste0(plotdir, "CB_heatmaps_antag_repssep.pdf"),  width=10.5, height=11)
+shift_legend2 <- function(p) {
+  # to grob
+  gp <- ggplotGrob(p)
+  facet.panels <- grep("^panel", gp[["layout"]][["name"]])
+  empty.facet.panels <- sapply(facet.panels, function(i) "zeroGrob" %in% class(gp[["grobs"]][[i]]))
+  empty.facet.panels <- facet.panels[empty.facet.panels]
+
+  # establish name of empty panels
+  empty.facet.panels <- gp[["layout"]][empty.facet.panels, ]
+  names <- empty.facet.panels$name
+
+  reposition_legend(p, 'center', panel=names, plot =F)
+}
+
+grid::grid.draw(shift_legend2(p))
+dev.off()
+
+pdf(paste0(plotdir, "CB_heatmaps_synergies_repssep.pdf"),  width=10.5, height=4.4)
+
+p1
+
+dev.off()
+
+
+pdf(paste0(plotdir, "CB_heatmaps_neutrals_repssep.pdf"),  width=10.5, height=11)
+grid::grid.draw(shift_legend2(p2))
+dev.off()
+
+
+
+```
+
+
+
+
+## Fig. 2 - full growth curves Kpn resensitization
+```{r}
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_additionalFig.2.xlsx"))
+
+
+
+toplot$facet = factor(toplot$strain, levels = c("E. coli J53","E. coli J53 pTOPO", "E. coli J53 pTOPO_mcr-1","E. coli J53 pKP2442_mcr-1",
+                                                "E. coli MG1655","E. coli MG1655 pmrA (G53E)","E. coli MG1655 pmrB (V88E)",
+                                                "E. coli BW25113","E. coli BW25113 pGDP1_mcr1",
+                                                "K. pneumoniae CT-S", "K. pneumoniae CT-R3 pmrB (P95L)", "K. pneumoniae LS107", "K. pneumoniae LS53 mgrB (IS1R)","K. pneumoniae pKP2442_mcr-1",
+                                                "K. pneumoniae PRZ" , "K. pneumoniae PRZ pTOPO","K. pneumoniae PRZ pTOPO_mcr-1", "K. pneumoniae PRZ pKP2442_mcr-1"))
+
+toplot = toplot %>%
+  mutate(row= case_when(strain %in% c("E. coli BW25113","E. coli BW25113 pGDP1_mcr1") ~ 1,
+                        strain %in% c("E. coli MG1655","E. coli MG1655 pmrA (G53E)","E. coli MG1655 pmrB (V88E)") ~ 2,
+                        strain %in% c("E. coli J53","E. coli J53 pTOPO", "E. coli J53 pTOPO_mcr-1", "E. coli J53 pKP2442_mcr-1") ~ 3,
+                        strain %in% c("K. pneumoniae PRZ" , "K. pneumoniae PRZ pTOPO_mcr-1","K. pneumoniae PRZ pKP2442_mcr-1") ~ 5,
+                        strain %in% c("K. pneumoniae CT-S", "K. pneumoniae CT-R3 pmrB (P95L)") ~ 6,
+                        strain %in% c("K. pneumoniae LS107", "K. pneumoniae LS53 mgrB (IS1R)") ~ 7,
+                        strain %in% c("K. pneumoniae pKP2442_mcr-1") ~ 8,
+                        strain %in% c("K. pneumoniae PRZ pTOPO") ~ 9),
+         resist = case_when(strain %in% c("E. coli BW25113","E. coli J53","E. coli MG1655",
+                                          "K. pneumoniae CT-S","K. pneumoniae LS107","K. pneumoniae PRZ") ~ "sensitive",
+                            TRUE ~ "resistant"))
+
+
+fixtps = function(x) {
+  x$condConc = interaction(x$condition, x$Concentration)
+  x$Time_points = ave(x$Time, x$condConc, FUN = seq_along)
+  return(x)
+}
+toplot = fixtps(toplot)
+
+
+toplot = toplot %>%
+  #decided not to include empty vector control in main fig, only supp 
+  mutate(strain = gsub(strain, pattern  =" ",replacement = "~"),
+        strain = gsub(strain, pattern  ="E.~coli",replacement = "italic('E. coli')"),
+        strain = gsub(strain, pattern  ="K.~pneumoniae",replacement = "italic('K. pneumoniae')")) 
+
+
+toplot = toplot %>%
+  mutate(strain = case_when(strain =="italic('E. coli')~BW25113~pGDP1_mcr1" ~ "~ atop(paste(italic('E. coli'), ' BW25113'),paste('pGDP1_', italic('mcr-1')))",  
+    strain =="italic('E. coli')~J53~pKP2442_mcr-1" ~ "~ atop(paste(italic('E. coli'), ' J53'),paste('pKP2442_', italic('mcr-1')))",
+                            strain =="italic('E. coli')~MG1655~pmrA~(G53E)" ~ "~ atop(paste(italic('E. coli'), ' MG1655'),paste(italic('pmrA'),'(G53E)'))",
+                            strain == "italic('E. coli')~MG1655~pmrB~(V88E)" ~ "~ atop(paste(italic('E. coli'), ' MG1655'),paste(italic('pmrB'),'(V88E)'))",
+    strain == "italic('E. coli')~J53~pTOPO_mcr-1" ~ "~ atop(paste(italic('E. coli'), ' J53'),paste('pTOPO_', italic('mcr-1')))",
+    strain == "italic('E. coli')~J53~pKP2442_mcr-1" ~ "~ atop(paste(italic('E. coli'), ' J53'),paste('pKP2442_', italic('mcr-1')))",
+    TRUE ~ strain))
+
+toplot = toplot %>%
+  dplyr::group_by(strain,Time,nitroxoline, Concentration, source) %>%
+  dplyr::mutate(mean = mean(OD_no1st),
+                SE = sqrt(var(OD_no1st)/length(OD_no1st)))
+
+
+
+pdf(paste0(plotdir, "colistin_resensitiz_growth_curves.pdf"), width=12, height=15)
+
+ggplot(toplot%>%
+         mutate(strainrep=interaction(strain,Replicate,nitroxoline,source)),
+       aes(x = Time, y = mean,color = factor(nitroxoline), group=strainrep)) +
+        geom_line(aes(group=strainrep)) +
+  geom_ribbon(aes(ymin = mean - SE, ymax = mean + SE, fill = factor(nitroxoline)),alpha = 0.5) +
+  scale_color_manual(labels = c("+ NX 0.75 µg/ml", "- NX"), values = c("turquoise4","darkgrey")) +
+  scale_fill_manual(labels = c("+ NX 0.75 µg/ml", "- NX"), values = c("turquoise4","darkgrey")) +
+      facet_grid(row + strain ~ Concentration, labeller = label_parsed) +
+      labs(x = "Time (h)", y = expression("OD"["595 nm"]),color = "") +
+  theme_bw() +
+  guides(fill="none")+
+  theme(legend.position="right")
+
+dev.off()
+
+
+```
+
+## Fig. 3 - full growth curves LptD
+
+
+```{r}
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_additionalFig.3.xlsx"))
+
+pdf(paste0(plotdir,"fullgrowthcurves_lptD.pdf"),width = 10, height=2)
+ggplot(toplot%>%
+         mutate(strainrep=interaction(strain,Replicate)),
+       aes(x = Time_h, y = mean,color = factor(strain), group=strain)) +
+        geom_line(aes(group=strain)) +
+  geom_ribbon(aes(ymin = mean - SE, ymax = mean + SE, fill = factor(strain)),alpha = 0.5) +
+  scale_color_manual(labels = c( "E. coli BW25113","E. coli lptD4213"), values = c("darkgrey", "turquoise4")) +
+  scale_fill_manual(labels = c( "E. coli BW25113","E. coli lptD4213"), values = c("darkgrey", "turquoise4")) +
+      facet_grid( ~ Concentration) +
+      labs(x = "Time (h)", y = expression("OD"["595 nm"]),color = "",fill="") +
+  theme_bw() +
+  guides(color="none")+
+  theme(legend.position="right")
+
+dev.off()
+
+```
+
+
+## Fig. 4 - resp chain thermal profiles
+
+```{r}
+toplot =readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.4abc_SuppFig5bf.xlsx"))
+
+a <- plot2dTppFcHeatmap(
+  df = toplot, name = "NuoB",
+  drug_name = "Nitroxoline")
+b <- plot2dTppFcHeatmap(
+  df = toplot, name = "NuoF",
+  drug_name = "Nitroxoline")
+c <- plot2dTppFcHeatmap(
+  df = toplot, name = "NuoI",
+  drug_name = "Nitroxoline")
+d <- plot2dTppFcHeatmap(
+  df = toplot, name = "NarH",
+  drug_name = "Nitroxoline")
+e <- plot2dTppFcHeatmap(
+  df = toplot, name = "NarG",
+  drug_name = "Nitroxoline")
+f <- plot2dTppFcHeatmap(
+  df = toplot, name = "SdhA",
+  drug_name = "Nitroxoline")
+g <- plot2dTppFcHeatmap(
+  df = toplot, name = "SdhB",
+  drug_name = "Nitroxoline")
+h <- plot2dTppFcHeatmap(
+  df = toplot, name = "FdnG",
+  drug_name = "Nitroxoline")
+i <- plot2dTppFcHeatmap(
+  df = toplot, name = "FdnH",
+  drug_name = "Nitroxoline")
+j <- plot2dTppFcHeatmap(
+  df = toplot, name = "FdoG",
+  drug_name = "Nitroxoline")
+k <- plot2dTppFcHeatmap(
+  df = toplot, name = "FdoH",
+  drug_name = "Nitroxoline")
+
+
+
+pdf(paste0(plotdir, "thermal_profile_respiratory_chain.pdf"), width = 14, height = 7)
+
+cowplot::plot_grid(a, b,c,d,e,f,g,h,i,j,k, ncol = 5)
+
+dev.off()
+
+
+```
+
+## Fig. 5 - proteomics sensitive strains
+### 5a - volcano sensitive strains proteomics
+
+```{r}
+
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.6a.xlsx"))
 
 colours = data.frame("cross_species_conservation" = c("conserved across species", "conserved within species","strain-specific", "no orthology group annotated"),
                      "values" = c("black", "#67a9cf","#ef8a62", "darkgrey"))
@@ -3124,7 +3134,7 @@ names(jColors) <- colours$cross_species_conservation
 toplot = toplot %>% filter(Condition_treatment=="Nx")
 
 
-pdf(paste0(plotdir, "Fig.S11a_volcano_sensitive.pdf"), width = 10, height = 1.9)
+pdf(paste0(plotdir, "volcano_sensitive_strains.pdf"), width = 10, height = 1.9)
 
 toplot = toplot %>%
   mutate(og = case_when(og == "BpeF/AdeG/OqxB" ~ "AdeG/OqxB",
@@ -3163,7 +3173,7 @@ dev.off()
 ```
 
 
-## Fig. 9b - clustered hm only hits sensitive proteomics
+###5b - clustered hm only hits sensitive proteomics
 
 ```{r}
 
@@ -3171,7 +3181,7 @@ strains = c("A. baumannii 2","A. baumannii 4",
             "E. coli 2", "K. pneumoniae 10","K. pneumoniae 2","K. pneumoniae 3", "K. pneumoniae 5", "K. pneumoniae 9")
 
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_EDFig.5b.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_SuppFig.6b.xlsx")) %>%
   filter(hit==1 & og != "" & Strain_treatment %in% strains)
 
 mymat = toplot %>% 
@@ -3222,7 +3232,7 @@ ha = HeatmapAnnotation(
 
 
 
-pdf(paste0(plotdir,"SuppFig.9b_clustered_proteomics_onlySensitiveStrains.pdf"), width=6, height=8)
+pdf(paste0(plotdir,"clustered_proteomics_onlySensitiveStrains.pdf"), width=6, height=8)
 
 Heatmap(mat_data,
         cluster_rows = dend1,
@@ -3238,14 +3248,14 @@ dev.off()
 
 ```
 
-## Fig. 9c - barplot conservation
+###5c - barplot conservation
 
 ```{r}
 senstrains =c("A. baumannii 2", "A. baumannii 4", "E. coli 1","E. coli 2",
               "K. pneumoniae 2", "K. pneumoniae 3", "K. pneumoniae 5", "K. pneumoniae 9")
 
 
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_EDFig5a.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_SuppFig.6a.xlsx")) %>%
    dplyr::mutate(resorsens = case_when(Strain_treatment %in% senstrains ~ "Sensitive strains",
                                       TRUE ~ "Resistant strains")) %>%
   filter(hit==1)%>%
@@ -3288,13 +3298,14 @@ dev.off()
 
 ```
 
-
 # SUPP TABLES
+
+Other supplementary tables are generated earlier when plotting figures. Please search for "table" in this code.
 
 ## Supp Table 6 - proteomics
 
 ```{r}
-toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_EDFig.5b.xlsx")) %>%
+toplot = readxl::read_xlsx(paste0(sourcedatadir,"source_Fig.5b_SuppFig.6b.xlsx")) %>%
   filter(hit==1)
 
 write_xlsx(toplot,paste0(supptablesdir,"Supplementary_Table_6.xlsx"))
